@@ -1,24 +1,59 @@
-// Core configuration
-const CONFIG = {
-    cpagrip: {
-        userId: "168038",
-        pubkey: "c7839a1512ea66f688e4b56a6e8f0f64",
-        vanityDomain: "optidownloader.com"
+import CONFIG from './config.js';
+import { LocationService } from './services/location-service.js';
+import { OfferService } from './services/offer-service.js';
+import { DisplayService } from './services/display-service.js';
+
+// Core utility functions only
+const Utils = {
+    detectDevice() {
+        const userAgent = navigator.userAgent.toLowerCase();
+        if (/android|webos|iphone|ipad|ipod|blackberry|iemobile|opera mini/i.test(userAgent)) {
+            if (/iphone|ipad|ipod/i.test(userAgent)) return "iOS";
+            if (/android/i.test(userAgent)) return "Android";
+            return "Mobile";
+        }
+        return "Desktop";
     },
-    // ...other configurations
+
+    detectOS() {
+        const userAgent = navigator.userAgent.toLowerCase();
+        if (/windows/.test(userAgent)) return "Windows";
+        if (/mac/.test(userAgent)) return "Mac";
+        if (/linux/.test(userAgent)) return "Linux";
+        if (/android/.test(userAgent)) return "Android";
+        if (/ios|iphone|ipad|ipod/.test(userAgent)) return "iOS";
+        return "Unknown";
+    },
+
+    generateTrackingId() {
+        return `visitor_${Date.now()}_${Math.random().toString(36).substring(2, 15)}`;
+    }
 };
 
-// Core functionality
-class OfferManager {
-    // ...move offer management logic here
-}
+// Initialize core services
+const locationService = new LocationService(CONFIG);
+const offerService = new OfferService(CONFIG);
+const displayService = new DisplayService(CONFIG);
 
-// Initialize when document is ready
-$(document).ready(() => {
+// Main initialization function
+async function initializeApp() {
     try {
-        const offerManager = new OfferManager();
-        offerManager.init();
+        const userInfo = {
+            device: Utils.detectDevice(),
+            os: Utils.detectOS(),
+            language: navigator.language || navigator.userLanguage
+        };
+
+        // Start with default location while fetching real location
+        const location = await locationService.detectLocation();
+        const offers = await offerService.fetchOffers(location);
+        displayService.displayOffers(offers, userInfo);
+        
     } catch (error) {
         console.error('Initialization error:', error);
+        displayService.showError();
     }
-});
+}
+
+// Start app when document is ready
+$(document).ready(initializeApp);
