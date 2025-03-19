@@ -1,0 +1,1731 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Premium Downloads | Exclusive Offers</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <style>
+        :root {
+            --primary-color: #3498db;
+            --secondary-color: #2ecc71;
+            --background-color: #f5f8fa;
+            --text-color: #333;
+            --card-background: #fff;
+            --button-hover: #2980b9;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: var(--background-color);
+            color: var(--text-color);
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            background-color: var(--primary-color);
+            color: white;
+            text-align: center;
+            padding: 30px 0;
+            border-radius: 8px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+        
+        .subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+        
+        .offers-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+        
+        .offer-card {
+            background-color: var(--card-background);
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            transition: transform 0.3s ease;
+        }
+        
+        .offer-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .offer-image {
+            width: 100%;
+            height: 180px;
+            object-fit: cover;
+            border-bottom: 1px solid #eee;
+            background-color: #f0f0f0;
+        }
+        
+        .offer-content {
+            padding: 20px;
+        }
+        
+        .offer-title {
+            font-size: 1.4rem;
+            margin-bottom: 10px;
+            color: var(--primary-color);
+        }
+        
+        .offer-description {
+            color: #666;
+            margin-bottom: 20px;
+        }
+        
+        .offer-highlight {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+            font-weight: 500;
+        }
+        
+        .offer-highlight svg {
+            margin-right: 10px;
+            color: var(--secondary-color);
+        }
+        
+        .cta-button {
+            display: block;
+            width: 100%;
+            background-color: var(--primary-color);
+            color: white;
+            text-align: center;
+            padding: 12px;
+            border-radius: 6px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 1rem;
+            transition: background-color 0.3s ease;
+        }
+        
+        .cta-button:hover {
+            background-color: var(--button-hover);
+        }
+        
+        .limited-offer {
+            background-color: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            margin-bottom: 30px;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .limited-offer p {
+            font-weight: 500;
+            margin-right: 20px;
+        }
+        
+        footer {
+            text-align: center;
+            padding: 30px 0;
+            color: #777;
+            font-size: 0.9rem;
+        }
+        
+        #location-banner {
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            color: white;
+            text-align: center;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 25px;
+        }
+        
+        .loading-spinner {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 200px;
+        }
+        
+        .spinner {
+            border: 4px solid rgba(0, 0, 0, 0.1);
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            border-left-color: var(--primary-color);
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        @media (max-width: 768px) {
+            .offers-container {
+                grid-template-columns: 1fr;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .limited-offer {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .limited-offer p {
+                margin-right: 0;
+                margin-bottom: 10px;
+            }
+        }
+
+        .loading-animation {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.9);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .loading-pulse {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: var(--primary-color);
+            animation: pulse 1.2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(0.95); opacity: 0.5; }
+            50% { transform: scale(1); opacity: 1; }
+            100% { transform: scale(0.95); opacity: 0.5; }
+        }
+
+        .activity-toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: white;
+            padding: 15px 25px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            animation: slideIn 0.3s ease-out;
+            z-index: 1000;
+        }
+
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        .exit-popup {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+        }
+
+        .popup-content {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            text-align: center;
+            position: relative;
+            max-width: 400px;
+        }
+
+        .close-button {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            border: none;
+            background: none;
+            cursor: pointer;
+            font-size: 20px;
+        }
+    </style>
+
+<script>
+// Theme Configuration
+const THEMES = {
+    'software': {
+        primaryColor: '#2196f3',
+        secondaryColor: '#03a9f4',
+        backgroundColor: '#f5f8fa',
+        headline: 'Premium Software Downloads',
+        features: ['Instant Access', 'Premium Support', 'Regular Updates']
+    },
+    'gaming': {
+        primaryColor: '#ff5722',
+        secondaryColor: '#ff9800',
+        backgroundColor: '#fff3e0',
+        headline: 'Premium Gaming Content',
+        features: ['All Features Unlocked', 'No Restrictions', 'Premium Content']
+    },
+    'utilities': {
+        primaryColor: '#4caf50',
+        secondaryColor: '#8bc34a',
+        backgroundColor: '#f1f8e9',
+        headline: 'Essential Utilities',
+        features: ['Advanced Features', 'Premium Support', 'Regular Updates']
+    }
+};
+
+// Theme Manager
+function updateTheme(category) {
+    const theme = THEMES[category] || THEMES.software;
+    
+    document.documentElement.style.setProperty('--primary-color', theme.primaryColor);
+    document.documentElement.style.setProperty('--secondary-color', theme.secondaryColor);
+    document.documentElement.style.setProperty('--background-color', theme.backgroundColor);
+}
+
+// Add this function to your JavaScript
+function showRecentActivity() {
+    const activities = [
+        "Someone from New York just claimed their offer",
+        "15 new downloads in the last hour",
+        "User from London just got premium access",
+        "New 5-star review received"
+    ];
+    
+    setInterval(() => {
+        const toast = document.createElement('div');
+        toast.className = 'activity-toast';
+        toast.textContent = activities[Math.floor(Math.random() * activities.length)];
+        document.body.appendChild(toast);
+        
+        setTimeout(() => {
+            toast.remove();
+        }, 3000);
+    }, 10000);
+}
+
+// Add this to your JavaScript
+function setupExitIntent() {
+    let shown = false;
+    
+    document.addEventListener('mouseout', e => {
+        if (!shown && e.clientY < 0) {
+            shown = true;
+            showExitPopup();
+        }
+    });
+}
+
+function showExitPopup() {
+    const popup = document.createElement('div');
+    popup.className = 'exit-popup';
+    popup.innerHTML = `
+        <div class="popup-content">
+            <h3>Wait! Don't Miss Out!</h3>
+            <p>Special offer available for the next 60 seconds</p>
+            <button class="cta-button">Claim Now</button>
+            <button class="close-button">✕</button>
+        </div>
+    `;
+    
+    document.body.appendChild(popup);
+    
+    popup.querySelector('.close-button').onclick = () => popup.remove();
+}
+</script>
+<script>
+// PopUnder Configuration
+const POPUNDER_CONFIG = {
+    monetag: {
+        enabled: true,
+        url: "https://ptukseew.top/4/6539566",
+        frequency: 2, // Shows every 2 clicks
+        delayBetween: 60000 // 60 seconds between popunders
+    },
+    adsterra: {
+        enabled: true,
+        url: "https://www.effectiveratecpm.com/fi6ib7zj?key=74f566e4a5584a970bcdd974545f1e3f",
+        frequency: 3, // Shows every 3 clicks
+        delayBetween: 120000 // 120 seconds between popunders
+    }
+};
+
+// PopUnder Manager
+class PopUnderManager {
+    constructor() {
+        this.clickCount = 0;
+        this.lastMonetag = 0;
+        this.lastAdsterra = 0;
+    }
+
+    handleClick() {
+        this.clickCount++;
+        const now = Date.now();
+
+        // Check Monetag conditions
+        if (POPUNDER_CONFIG.monetag.enabled && 
+            this.clickCount % POPUNDER_CONFIG.monetag.frequency === 0 &&
+            now - this.lastMonetag >= POPUNDER_CONFIG.monetag.delayBetween) {
+            this.openPopunder(POPUNDER_CONFIG.monetag.url);
+            this.lastMonetag = now;
+        }
+
+        // Check Adsterra conditions
+        if (POPUNDER_CONFIG.adsterra.enabled &&
+            this.clickCount % POPUNDER_CONFIG.adsterra.frequency === 0 &&
+            now - this.lastAdsterra >= POPUNDER_CONFIG.adsterra.delayBetween) {
+            this.openPopunder(POPUNDER_CONFIG.adsterra.url);
+            this.lastAdsterra = now;
+        }
+    }
+
+    openPopunder(url) {
+        const windowName = 'popunder_' + Math.floor(Math.random() * 1000);
+        const windowFeatures = 'width=1024,height=768';
+        
+        // Create popunder
+        const popunder = window.open(url, windowName, windowFeatures);
+        
+        // Focus back on main window
+        if (popunder) {
+            popunder.blur();
+            window.focus();
+        }
+    }
+}
+
+// Initialize PopUnder Manager
+const popunderManager = new PopUnderManager();
+
+// Modify the existing button click handlers in displayCPAGripOffers and displayOffers
+function addPopunderToButton(button) {
+    button.addEventListener('click', (e) => {
+        // Trigger popunder
+        popunderManager.handleClick();
+        
+        // Small delay to ensure PopUnder works
+        e.preventDefault();
+        setTimeout(() => {
+            window.location.href = button.href;
+        }, 100);
+    });
+}
+</script>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Premium Downloads</h1>
+            <p class="subtitle">Exclusive offers personalized just for you</p>
+        </header>
+        
+        <div id="location-banner">
+            <p>Finding the best offers for your location...</p>
+        </div>
+        
+        <div class="limited-offer">
+            <p><strong>Limited Time:</strong> <span id="countdown">05:00</span> remaining to claim your exclusive offer!</p>
+            <span id="visitor-count">317 people viewing this page</span>
+        </div>
+        
+        <div class="social-proof">
+            <div class="proof-item">
+                <span class="icon">⭐</span>
+                <span class="count">4.8/5</span>
+                <span class="label">User Rating</span>
+            </div>
+            <div class="proof-item">
+                <span class="icon">👥</span>
+                <span class="count">50K+</span>
+                <span class="label">Downloads</span>
+            </div>
+            <div class="proof-item">
+                <span class="icon">✓</span>
+                <span class="count">100%</span>
+                <span class="label">Safe & Secure</span>
+            </div>
+        </div>
+        
+        <div class="offers-container" id="offers">
+            <!-- Loading spinner -->
+            <div class="loading-spinner">
+                <div class="spinner"></div>
+            </div>
+        </div>
+    </div>
+    
+    <footer>
+        <p>© 2025 Premium Downloads. All rights reserved.</p>
+    </footer>
+
+    <script>
+
+        // Enhanced functions for analyzing and adapting to CPA offers
+
+    /**
+     * Analyzes a collection of offers to extract metadata and patterns
+     * @param {Array} offers - Collection of offer objects from CPA network
+     * @return {Object} Metadata about the offers including category, keywords, etc.
+     */
+    function analyzeOffers(offers) {
+        // Extract categories from offers
+        const categories = {};
+        const keywords = {};
+        const audienceHints = [];
+        
+        offers.forEach(offer => {
+            // Extract category from title or description
+            const possibleCategories = [
+                'games', 'gaming', 'apps', 'software', 'utilities', 
+                'entertainment', 'streaming', 'download', 'security', 
+                'vpn', 'antivirus', 'music', 'video'
+            ];
+            
+            // Look for category matches in title and description
+            let offerTitle = offer.title.toLowerCase();
+            let offerDesc = (offer.description || '').toLowerCase();
+            
+            // Try to identify the offer's category
+            for (const category of possibleCategories) {
+                if (offerTitle.includes(category) || offerDesc.includes(category)) {
+                    categories[category] = (categories[category] || 0) + 1;
+                }
+            }
+            
+            // Extract potential keywords
+            const titleWords = offerTitle.split(/\s+/)
+                .map(word => word.replace(/[^\w]/g, ''))
+                .filter(word => word.length > 3);
+                
+            const descWords = offerDesc.split(/\s+/)
+                .map(word => word.replace(/[^\w]/g, ''))
+                .filter(word => word.length > 3);
+                
+            [...titleWords, ...descWords].forEach(word => {
+                // Ignore common words
+                const commonWords = ['your', 'with', 'that', 'this', 'from', 'have', 'free'];
+                if (!commonWords.includes(word)) {
+                    keywords[word] = (keywords[word] || 0) + 1;
+                }
+            });
+            
+            // Check for audience hints
+            const audienceTerms = {
+                'gamers': ['game', 'gaming', 'play'],
+                'professionals': ['business', 'work', 'professional', 'productivity'],
+                'students': ['student', 'education', 'learn', 'study'],
+                'entertainment seekers': ['entertainment', 'stream', 'watch', 'movie'],
+                'mobile users': ['mobile', 'phone', 'android', 'ios', 'iphone']
+            };
+            
+            // Find audience matches
+            for (const [audience, terms] of Object.entries(audienceTerms)) {
+                for (const term of terms) {
+                    if (offerTitle.includes(term) || offerDesc.includes(term)) {
+                        audienceHints.push(audience);
+                        break;
+                    }
+                }
+            }
+        });
+        
+        // Determine dominant category
+        const dominantCategory = Object.keys(categories).reduce((a, b) => 
+            (categories[a] || 0) > (categories[b] || 0) ? a : b, 'software');
+        
+        // Get top keywords (by frequency)
+        const topKeywords = Object.keys(keywords)
+            .sort((a, b) => keywords[b] - keywords[a])
+            .slice(0, 5);
+        
+        // Determine most likely audience
+        const audienceCounts = {};
+        audienceHints.forEach(audience => {
+            audienceCounts[audience] = (audienceCounts[audience] || 0) + 1;
+        });
+        
+        const primaryAudience = Object.keys(audienceCounts).reduce((a, b) => 
+            (audienceCounts[a] || 0) > (audienceCounts[b] || 0) ? a : b, 'digital enthusiasts');
+        
+        return {
+            primaryCategory: dominantCategory,
+            categories: Object.keys(categories),
+            keywords: topKeywords,
+            audience: primaryAudience
+        };
+    }
+
+    /**
+     * Dynamically adjusts the page theme based on offer metadata
+     * @param {Object} metadata - Offer metadata from analyzeOffers
+     */
+    function updatePageTheme(metadata) {
+        // Theme configurations by category
+        const themes = {
+            'games': {
+                primaryColor: '#ff5722',
+                secondaryColor: '#ff9800',
+                backgroundColor: '#f5f5f5',
+                headline: 'Premium Gaming Content',
+                subtitle: 'Level up your gaming experience with exclusive access',
+                headerClass: 'gaming-header'
+            },
+            'gaming': {
+                primaryColor: '#ff5722',
+                secondaryColor: '#ff9800',
+                backgroundColor: '#f5f5f5',
+                headline: 'Premium Gaming Content',
+                subtitle: 'Level up your gaming experience with exclusive access',
+                headerClass: 'gaming-header'
+            },
+            'software': {
+                primaryColor: '#2196f3',
+                secondaryColor: '#03a9f4',
+                backgroundColor: '#f5f8fa',
+                headline: 'Essential Software Downloads',
+                subtitle: 'Enhance your digital experience with premium tools',
+                headerClass: 'software-header'
+            },
+            'utilities': {
+                primaryColor: '#4caf50',
+                secondaryColor: '#8bc34a',
+                backgroundColor: '#f9fbe7',
+                headline: 'Must-Have Utilities', 
+                subtitle: 'Optimize your device with powerful utilities',
+                headerClass: 'utilities-header'
+            },
+            'entertainment': {
+                primaryColor: '#9c27b0',
+                secondaryColor: '#e91e63',
+                backgroundColor: '#fce4ec',
+                headline: 'Premium Entertainment',
+                subtitle: 'Stream, watch, and enjoy unlimited content',
+                headerClass: 'entertainment-header'
+            },
+            'security': {
+                primaryColor: '#607d8b',
+                secondaryColor: '#78909c',
+                backgroundColor: '#eceff1',
+                headline: 'Advanced Security Solutions',
+                subtitle: 'Protect your digital life with premium security',
+                headerClass: 'security-header'
+            },
+            'streaming': {
+                primaryColor: '#9c27b0',
+                secondaryColor: '#e91e63',
+                backgroundColor: '#fce4ec',
+                headline: 'Premium Streaming Access',
+                subtitle: 'Unlimited streaming of movies, shows and more',
+                headerClass: 'streaming-header'
+            },
+            'vpn': {
+                primaryColor: '#3f51b5',
+                secondaryColor: '#5c6bc0',
+                backgroundColor: '#e8eaf6',
+                headline: 'Premium Privacy Solutions',
+                subtitle: 'Secure your connection and protect your privacy',
+                headerClass: 'vpn-header'
+            }
+        };
+        
+        // Default theme as fallback
+        const defaultTheme = {
+            primaryColor: '#3498db',
+            secondaryColor: '#2ecc71',
+            backgroundColor: '#f5f8fa',
+            headline: 'Premium Downloads',
+            subtitle: 'Exclusive offers personalized just for you',
+            headerClass: 'default-header'
+        };
+        
+        // Get theme based on primary category
+        const theme = themes[metadata.primaryCategory] || defaultTheme;
+        
+        // Apply theme to CSS variables
+        document.documentElement.style.setProperty('--primary-color', theme.primaryColor);
+        document.documentElement.style.setProperty('--secondary-color', theme.secondaryColor);
+        document.documentElement.style.setProperty('--background-color', theme.backgroundColor);
+        
+        // Update page content
+        document.querySelector('header h1').textContent = theme.headline;
+        document.querySelector('.subtitle').textContent = customizeSubtitle(theme.subtitle, metadata);
+        
+        // Update header class for possible additional styling
+        const header = document.querySelector('header');
+        
+        // Remove any existing theme classes
+        Object.values(themes).forEach(t => {
+            if (t.headerClass) {
+                header.classList.remove(t.headerClass);
+            }
+        });
+        
+        // Add the new theme class
+        if (theme.headerClass) {
+            header.classList.add(theme.headerClass);
+        }
+    }
+
+    /**
+     * Customizes the subtitle based on metadata
+     * @param {String} baseSubtitle - The default subtitle from the theme
+     * @param {Object} metadata - Offer metadata
+     * @return {String} Customized subtitle
+     */
+    function customizeSubtitle(baseSubtitle, metadata) {
+        // If we have keywords, incorporate them
+        if (metadata.keywords && metadata.keywords.length > 0) {
+            // Take up to 3 relevant keywords
+            const relevantKeywords = metadata.keywords.slice(0, 3);
+            // Capitalize first letter of each keyword
+            const formattedKeywords = relevantKeywords.map(word => 
+                word.charAt(0).toUpperCase() + word.slice(1));
+                
+            if (metadata.audience) {
+                return `${formattedKeywords.join(', ')} and more for ${metadata.audience}`;
+            } else {
+                return `${formattedKeywords.join(', ')} and more just for you`;
+            }
+        }
+        
+        return baseSubtitle;
+    }
+
+    /**
+     * Updates the location banner with more specific messaging based on offers
+     * @param {String} location - User's detected location
+     * @param {Object} metadata - Offer metadata
+     */
+    function updateLocationBanner(location, metadata) {
+        const banner = document.getElementById("location-banner");
+        
+        // Create category-specific location messages
+        const locationMessages = {
+            'games': `Top gaming content available in ${location}!`,
+            'gaming': `Exclusive games available in ${location}!`,
+            'software': `Premium software packages for ${location} users!`,
+            'utilities': `Essential utilities for users in ${location}!`,
+            'entertainment': `Stream premium content in ${location} now!`,
+            'security': `Protect your devices in ${location} with our solutions!`,
+            'vpn': `Enhanced privacy solutions for ${location}!`
+        };
+        
+        const defaultMessage = `Exclusive offers available in ${location}!`;
+        const message = locationMessages[metadata.primaryCategory] || defaultMessage;
+        
+        banner.innerHTML = `<p>${message}</p>`;
+    }
+
+    /**
+     * Enhances the feature highlights based on offer analysis
+     * @param {Object} offer - The CPA offer
+     * @param {Object} metadata - Offer metadata
+     * @return {Array} Enhanced feature highlights
+     */
+    function enhanceFeatureHighlights(offer, metadata) {
+        // Default features by category
+        const categoryFeatures = {
+            'games': ["All levels unlocked", "Premium content", "Regular updates"],
+            'gaming': ["Unlimited resources", "No in-app purchases", "Premium gaming experience"],
+            'software': ["Professional features", "Regular updates", "Premium support"],
+            'utilities': ["Performance optimization", "User-friendly interface", "Complete toolkit"],
+            'entertainment': ["Ad-free experience", "HD quality content", "Unlimited streaming"],
+            'security': ["Advanced protection", "Regular updates", "Multiple devices"],
+            'vpn': ["Complete privacy", "Unlimited bandwidth", "Global access"]
+        };
+        
+        // Extract features from the offer description if possible
+        const features = [];
+        if (offer.description) {
+            // Try to extract features from the description
+            const descriptionParts = offer.description.split('.');
+            for (let i = 0; i < Math.min(3, descriptionParts.length); i++) {
+                if (descriptionParts[i].trim().length > 0) {
+                    features.push(descriptionParts[i].trim());
+                }
+            }
+        }
+        
+        // If we don't have enough features, add category-specific ones
+        if (features.length < 3) {
+            const defaultFeatures = categoryFeatures[metadata.primaryCategory] || 
+                ["Premium access", "No registration required", "Regular updates"];
+                
+            // Add default features until we have 3
+            for (let i = 0; i < defaultFeatures.length && features.length < 3; i++) {
+                if (!features.includes(defaultFeatures[i])) {
+                    features.push(defaultFeatures[i]);
+                }
+            }
+        }
+        
+        return features;
+    }
+
+    /**
+     * Enhanced version of displayCPAGripOffers that adapts content based on offer analysis
+     * @param {Array} offers - Collection of offers from the CPA network
+     * @param {Object} userInfo - Information about the user
+     */
+    function displayCPAGripOffers(offers, userInfo) {
+        const offersContainer = document.getElementById("offers");
+        offersContainer.innerHTML = ""; // Clear loading spinner
+        
+        // Analyze offers to extract metadata
+        const metadata = analyzeOffers(offers);
+        
+        // Update page theme based on offer metadata
+        updatePageTheme(metadata);
+        
+        // Update location banner with more specific messaging
+        updateLocationBanner(userInfo.geo.country_name, metadata);
+        
+        // Customize your vanity domain if needed
+        const vanityDomain = "optidownloader.com";
+        
+        // Create offer cards with enhanced content
+        offers.forEach((offer, index) => {
+            // Replace the default domain with your vanity domain if needed
+            const offerUrl = offer.offerlink.replace('www.cpagrip.com', vanityDomain);
+            
+            // Create offer card HTML
+            const offerCard = document.createElement("div");
+            offerCard.className = "offer-card";
+            if (index === 0) {
+                offerCard.style.border = "2px solid var(--secondary-color)";
+            }
+            
+            // Create image element
+            const img = document.createElement("img");
+            img.className = "offer-image";
+            img.alt = offer.title;
+            
+            // Use the offer's image or a placeholder
+            if (offer.image_url) {
+                img.src = offer.image_url;
+            } else {
+                // Use a placeholder that matches the category if possible
+                img.src = `https://source.unsplash.com/300x180/?${metadata.primaryCategory},${metadata.keywords[0] || 'premium'}`;
+            }
+            
+            // Handle image loading errors
+            img.onerror = function() {
+                this.src = `https://source.unsplash.com/300x180/?${metadata.primaryCategory}`;
+            };
+            
+            // Get enhanced features for this offer
+            const features = enhanceFeatureHighlights(offer, metadata);
+            
+            // Create features HTML
+            const featuresHtml = features.map(feature => `
+                <div class="offer-highlight">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                        <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                    </svg>
+                    ${feature}
+                </div>
+            `).join('');
+            
+            // Customize CTA button text based on category
+            const ctaTexts = {
+                'games': 'Play Now',
+                'gaming': 'Download Now',
+                'software': 'Get Software',
+                'utilities': 'Download Now',
+                'entertainment': 'Stream Now',
+                'security': 'Secure Now',
+                'vpn': 'Get Protected'
+            };
+            
+            const ctaText = ctaTexts[metadata.primaryCategory] || 'Get Access Now';
+            
+            // CTA button
+            const button = document.createElement("a");
+            button.href = offerUrl;
+            button.className = "cta-button";
+            button.target = "_blank";
+            button.textContent = ctaText;
+            addPopunderToButton(button);
+            
+            // Assemble the card
+            const content = document.createElement("div");
+            content.className = "offer-content";
+            
+            // Enhanced description based on metadata if the original is too short
+            let enhancedDescription = offer.description;
+            if (!enhancedDescription || enhancedDescription.length < 30) {
+                // Create a more compelling description
+                const descriptions = {
+                    'games': `Exclusive premium ${offer.title} with all features unlocked. Perfect for ${metadata.audience}.`,
+                    'gaming': `Experience ${offer.title} with premium features and unlimited access. Made for ${metadata.audience}.`,
+                    'software': `Professional-grade ${offer.title} with all features enabled. Ideal for ${metadata.audience}.`,
+                    'utilities': `Optimize your experience with ${offer.title}. The perfect utility for ${metadata.audience}.`,
+                    'entertainment': `Enjoy unlimited streaming with ${offer.title}. Premium entertainment for ${metadata.audience}.`,
+                    'security': `Protect your devices with ${offer.title}. Advanced security for ${metadata.audience}.`,
+                    'vpn': `Secure your privacy with ${offer.title}. Complete protection for ${metadata.audience}.`
+                };
+                
+                enhancedDescription = descriptions[metadata.primaryCategory] || 
+                    `Exclusive premium content customized for ${metadata.audience}.`;
+            }
+            
+            content.innerHTML = `
+                <h3 class="offer-title">${offer.title}</h3>
+                <p class="offer-description">${enhancedDescription}</p>
+                ${featuresHtml}
+            `;
+            content.appendChild(button);
+            
+            offerCard.appendChild(img);
+            offerCard.appendChild(content);
+            offersContainer.appendChild(offerCard);
+        });
+        
+        // Apply language translation to buttons
+        translateButtonsIfNeeded(userInfo.language);
+    }
+
+    /**
+     * Additional function to update the limited offer banner based on offer analysis
+     * @param {Object} metadata - Offer metadata
+     */
+    function updateLimitedOfferBanner(metadata) {
+        const limitedOfferElement = document.querySelector('.limited-offer p');
+        
+        // Customize urgency message based on offer category
+        const urgencyMessages = {
+            'games': "Limited Gaming Access:",
+            'gaming': "Limited Gaming Offer:",
+            'software': "Limited Software Access:",
+            'utilities': "Limited Utility Access:",
+            'entertainment': "Limited Streaming Access:",
+            'security': "Limited Security Offer:",
+            'vpn': "Limited Privacy Offer:"
+        };
+        
+        const defaultMessage = "Limited Time:";
+        const message = urgencyMessages[metadata.primaryCategory] || defaultMessage;
+        
+        limitedOfferElement.innerHTML = `<strong>${message}</strong> <span id="countdown">05:00</span> remaining to claim your exclusive offer!`;
+    }
+
+    // Replace the original fetchOffers function
+    function fetchOffers(geoInfo) {
+        const userInfo = {
+            device: detectDevice(),
+            os: detectOS(),
+            language: navigator.language || navigator.userLanguage,
+            geo: geoInfo
+        };
+        
+        // Set up the language based on user's locale
+        setPageLanguage(userInfo.language);
+        
+        // Show loading state
+        const offersContainer = document.getElementById("offers");
+        offersContainer.innerHTML = `
+            <div class="loading-spinner">
+                <div class="spinner"></div>
+            </div>
+        `;
+        
+        // Create the CPAgrip JSON feed URL
+        const cpaGripUrl = "https://www.cpagrip.com/common/offer_feed_json.php";
+        const params = new URLSearchParams({
+            user_id: "168038",  // Your user ID
+            pubkey: "c7839a1512ea66f688e4b56a6e8f0f64",  // Your public key
+            tracking_id: generateTrackingId(), // Generate a unique tracking ID for this user
+            limit: 6 // Number of offers to display
+        });
+        
+        // If you want to show only mobile offers for mobile devices
+        if (userInfo.device !== "Desktop") {
+            params.append("showmobile", "only");
+        }
+        
+        // Make the API call
+        $.getJSON(`${cpaGripUrl}?${params.toString()}`, function(data) {
+            if (data.offers && data.offers.length > 0) {
+                // Analyze offers
+                const metadata = analyzeOffers(data.offers);
+                
+                // Update page content based on offer metadata
+                updatePageTheme(metadata);
+                
+                // Update location banner
+                updateLocationBanner(userInfo.geo.country_name, metadata);
+                
+                // Update limited offer banner
+                updateLimitedOfferBanner(metadata);
+                
+                // Display the offers with enhanced content
+                displayCPAGripOffers(data.offers, userInfo);
+            } else {
+                // Fallback to mock offers if no offers are returned
+                const mockOffers = generateMockOffers(userInfo);
+                
+                // Analyze mock offers
+                const metadata = analyzeOffers(mockOffers);
+                
+                // Update page based on mock offer metadata
+                updatePageTheme(metadata);
+                updateLocationBanner(userInfo.geo.country_name, metadata);
+                updateLimitedOfferBanner(metadata);
+                
+                displayOffers(mockOffers, userInfo);
+            }
+        }).fail(function() {
+            console.error("Error fetching offers from CPAgrip");
+            // Fallback to mock offers
+            const mockOffers = generateMockOffers(userInfo);
+            
+            // Analyze mock offers
+            const metadata = analyzeOffers(mockOffers);
+            
+            // Update page based on mock offers
+            updatePageTheme(metadata);
+            updateLocationBanner(userInfo.geo.country_name, metadata);
+            updateLimitedOfferBanner(metadata);
+            
+            displayOffers(mockOffers, userInfo);
+        });
+    }
+
+    // Update the displayOffers function to incorporate the dynamic content strategy
+    function displayOffers(offers, userInfo) {
+        const offersContainer = document.getElementById("offers");
+        offersContainer.innerHTML = ""; // Clear loading spinner
+        
+        // Analyze offers to extract metadata
+        const metadata = analyzeOffers(offers);
+        
+        // Create offer cards with enhanced content
+        offers.forEach((offer, index) => {
+            // Create offer card HTML
+            const offerCard = document.createElement("div");
+            offerCard.className = "offer-card";
+            if (offer.special) {
+                offerCard.style.border = "2px solid var(--secondary-color)";
+            }
+            
+            // Create image element with error handling
+            const img = document.createElement("img");
+            img.className = "offer-image";
+            img.alt = offer.title;
+            
+            // Set image source with error handling
+            if (offer.image_url) {
+                img.src = offer.image_url;
+                img.onerror = function() {
+                    // If image fails to load, use a theme-appropriate placeholder
+                    this.src = `https://source.unsplash.com/300x180/?${metadata.primaryCategory},${metadata.keywords[0] || 'premium'}`;
+                };
+            } else {
+                img.src = `https://source.unsplash.com/300x180/?${metadata.primaryCategory},${metadata.keywords[0] || 'premium'}`;
+            }
+            
+            // Create card content
+            const content = document.createElement("div");
+            content.className = "offer-content";
+            
+            // Get enhanced features for this offer
+            const features = enhanceFeatureHighlights(offer, metadata);
+            
+            // Create features HTML
+            const featuresHtml = features.map(feature => `
+                <div class="offer-highlight">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                        <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                    </svg>
+                    ${feature}
+                </div>
+            `).join('');
+            
+            // Customize CTA button text based on category
+            const ctaTexts = {
+                'games': 'Play Now',
+                'gaming': 'Download Now',
+                'software': 'Get Software',
+                'utilities': 'Download Now',
+                'entertainment': 'Stream Now',
+                'security': 'Secure Now',
+                'vpn': 'Get Protected'
+            };
+            
+            const ctaText = ctaTexts[metadata.primaryCategory] || 'Get Access Now';
+            
+            // CTA button
+            const button = document.createElement("a");
+            button.href = offer.target_url;
+            button.className = "cta-button";
+            button.target = "_blank";
+            button.textContent = ctaText;
+            addPopunderToButton(button);
+            
+            // Assemble the card
+            content.innerHTML = `
+                <h3 class="offer-title">${offer.title}</h3>
+                <p class="offer-description">${offer.description}</p>
+                ${featuresHtml}
+            `;
+            content.appendChild(button);
+            
+            offerCard.appendChild(img);
+            offerCard.appendChild(content);
+            offersContainer.appendChild(offerCard);
+        });
+        
+        // Apply language translation to buttons
+        translateButtonsIfNeeded(userInfo.language);
+    }
+            // Detect user information
+            function detectUserInfo() {
+                const userInfo = {
+                    device: detectDevice(),
+                    os: detectOS(),
+                    language: navigator.language || navigator.userLanguage,
+                    geo: null
+                };
+                
+                // Get geolocation if available
+                if (navigator.geolocation) {
+                    navigator.geolocation.getCurrentPosition(
+                        position => {
+                            fetchGeoInfo(position.coords.latitude, position.coords.longitude);
+                        },
+                        error => {
+                            console.log("Geolocation error:", error);
+                            // Use IP-based geolocation as fallback
+                            fetchIPBasedGeo();
+                        }
+                    );
+                } else {
+                    fetchIPBasedGeo();
+                }
+                
+                return userInfo;
+            }
+            
+            // Detect device type
+            function detectDevice() {
+                const userAgent = navigator.userAgent.toLowerCase();
+                if (/android|webos|iphone|ipad|ipod|blackberry|iemobile|opera mini/i.test(userAgent)) {
+                    if (/iphone|ipad|ipod/i.test(userAgent)) {
+                        return "iOS";
+                    } else if (/android/i.test(userAgent)) {
+                        return "Android";
+                    } else {
+                        return "Mobile";
+                    }
+                }
+                return "Desktop";
+            }
+            
+            // Detect operating system
+            function detectOS() {
+                const userAgent = navigator.userAgent.toLowerCase();
+                if (/windows/.test(userAgent)) return "Windows";
+                if (/mac/.test(userAgent)) return "Mac";
+                if (/linux/.test(userAgent)) return "Linux";
+                if (/android/.test(userAgent)) return "Android";
+                if (/ios|iphone|ipad|ipod/.test(userAgent)) return "iOS";
+                return "Unknown";
+            }
+            
+            // Fetch IP-based geolocation
+            function fetchIPBasedGeo() {
+                fetch("https://ipapi.co/json/")
+                    .then(response => response.json())
+                    .then(data => {
+                        updateLocationBanner(data.country_name);
+                        fetchOffers({
+                            country: data.country,
+                            country_name: data.country_name,
+                            city: data.city,
+                            region: data.region
+                        });
+                    })
+                    .catch(error => {
+                        console.error("Error fetching IP geolocation:", error);
+                        // Use default offers if geolocation fails
+                        fetchOffers({
+                            country: "Unknown",
+                            country_name: "your area",
+                            city: "",
+                            region: ""
+                        });
+                    });
+            }
+        
+        // Fetch detailed geo information based on coordinates
+        function fetchGeoInfo(lat, lon) {
+            fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`)
+                .then(response => response.json())
+                .then(data => {
+                    const address = data.address;
+                    updateLocationBanner(address.country);
+                    fetchOffers({
+                        country: address.country_code?.toUpperCase() || "Unknown",
+                        country_name: address.country || "your area",
+                        city: address.city || address.town || "",
+                        region: address.state || ""
+                    });
+                })
+                .catch(error => {
+                    console.error("Error fetching geolocation details:", error);
+                    fetchIPBasedGeo(); // Fallback to IP-based geo
+                });
+        }
+        
+        // Update location banner based on user's location
+        function updateLocationBanner(location) {
+            const banner = document.getElementById("location-banner");
+            banner.innerHTML = `<p>Exclusive offers available in <strong>${location}</strong>!</p>`;
+        }
+        
+        // Generate a unique tracking ID for the user
+        function generateTrackingId() {
+            // You could use a combination of timestamp and random string
+            return `visitor_${Date.now()}_${Math.random().toString(36).substring(2, 15)}`;
+        }
+        
+        // Fetch offers from the CPAgrip JSON feed
+        function fetchOffers(geoInfo) {
+            const userInfo = {
+                device: detectDevice(),
+                os: detectOS(),
+                language: navigator.language || navigator.userLanguage,
+                geo: geoInfo
+            };
+            
+            // Set up the language based on user's locale
+            setPageLanguage(userInfo.language);
+            
+            // Show loading state
+            const offersContainer = document.getElementById("offers");
+            offersContainer.innerHTML = `
+                <div class="loading-spinner">
+                    <div class="spinner"></div>
+                </div>
+            `;
+            
+            // Create the CPAgrip JSON feed URL
+            const cpaGripUrl = "https://www.cpagrip.com/common/offer_feed_json.php";
+            const params = new URLSearchParams({
+                user_id: "168038",  // Your user ID
+                pubkey: "c7839a1512ea66f688e4b56a6e8f0f64",  // Your public key
+                tracking_id: generateTrackingId(), // Generate a unique tracking ID for this user
+                limit: 6 // Number of offers to display
+            });
+            
+            // If you want to show only mobile offers for mobile devices
+            if (userInfo.device !== "Desktop") {
+                params.append("showmobile", "only");
+            }
+            
+            // Make the API call
+            $.getJSON(`${cpaGripUrl}?${params.toString()}`, function(data) {
+                if (data.offers && data.offers.length > 0) {
+                    displayCPAGripOffers(data.offers, userInfo);
+                } else {
+                    // Fallback to mock offers if no offers are returned
+                    const mockOffers = generateMockOffers(userInfo);
+                    displayOffers(mockOffers, userInfo);
+                }
+            }).fail(function() {
+                console.error("Error fetching offers from CPAgrip");
+                // Fallback to mock offers
+                const mockOffers = generateMockOffers(userInfo);
+                displayOffers(mockOffers, userInfo);
+            });
+        }
+        
+        // Display offers from CPAgrip JSON feed
+        function displayCPAGripOffers(offers, userInfo) {
+            const offersContainer = document.getElementById("offers");
+            offersContainer.innerHTML = ""; // Clear loading spinner
+            
+            // Customize your vanity domain if needed
+            const vanityDomain = "optidownloader.com"; // You can change this to your preferred domain
+            
+            // Create offer cards
+            offers.forEach((offer, index) => {
+                // Replace the default domain with your vanity domain if needed
+                const offerUrl = offer.offerlink.replace('www.cpagrip.com', vanityDomain);
+                
+                // Create offer card HTML
+                const offerCard = document.createElement("div");
+                offerCard.className = "offer-card";
+                if (index === 0) {
+                    offerCard.style.border = "2px solid var(--secondary-color)";
+                }
+                
+                // Create image element
+                const img = document.createElement("img");
+                img.className = "offer-image";
+                img.alt = offer.title;
+                
+                // Use the offer's image or a placeholder
+                if (offer.image_url) {
+                    img.src = offer.image_url;
+                } else {
+                    // Use a placeholder based on the offer title
+                    img.src = `https://via.placeholder.com/300x180?text=${encodeURIComponent(offer.title)}`;
+                }
+                
+                // Handle image loading errors
+                img.onerror = function() {
+                    this.src = `https://via.placeholder.com/300x180?text=${encodeURIComponent(offer.title)}`;
+                };
+                
+                // Create features from the offer description
+                const features = [];
+                if (offer.description) {
+                    // Try to extract features from the description
+                    const descriptionParts = offer.description.split('.');
+                    for (let i = 0; i < Math.min(3, descriptionParts.length); i++) {
+                        if (descriptionParts[i].trim().length > 0) {
+                            features.push(descriptionParts[i].trim());
+                        }
+                    }
+                }
+                
+                // If we couldn't extract enough features, add some generic ones
+                while (features.length < 3) {
+                    const genericFeatures = [
+                        "Premium access",
+                        "No registration required",
+                        "Fast download speed",
+                        "Regular updates",
+                        "User-friendly interface"
+                    ];
+                    
+                    const randomFeature = genericFeatures[Math.floor(Math.random() * genericFeatures.length)];
+                    if (!features.includes(randomFeature)) {
+                        features.push(randomFeature);
+                    }
+                }
+                
+                // Create features HTML
+                const featuresHtml = features.map(feature => `
+                    <div class="offer-highlight">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                            <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                        </svg>
+                        ${feature}
+                    </div>
+                `).join('');
+                
+                // CTA button
+                const button = document.createElement("a");
+                button.href = offerUrl;
+                button.className = "cta-button";
+                button.target = "_blank";
+                button.textContent = "Get Access Now";
+                addPopunderToButton(button);
+                
+                // Assemble the card
+                const content = document.createElement("div");
+                content.className = "offer-content";
+                content.innerHTML = `
+                    <h3 class="offer-title">${offer.title}</h3>
+                    <p class="offer-description">${offer.description || "Exclusive premium content customized for you."}</p>
+                    ${featuresHtml}
+                `;
+                content.appendChild(button);
+                
+                offerCard.appendChild(img);
+                offerCard.appendChild(content);
+                offersContainer.appendChild(offerCard);
+            });
+            
+            // Apply language translation to buttons
+            translateButtonsIfNeeded(userInfo.language);
+        }
+        
+        // Generate mock offers based on user info (for fallback)
+        function generateMockOffers(userInfo) {
+            // This function simulates offers that would come from the CPA network
+            const deviceType = userInfo.device === "Mobile" ? 
+                (userInfo.os === "iOS" ? "iOS" : "Android") : "Desktop";
+            
+            const offerCategories = {
+                "iOS": ["apps", "games", "utilities", "entertainment"],
+                "Android": ["apps", "games", "utilities", "entertainment"],
+                "Desktop": ["software", "utilities", "entertainment", "tools"]
+            };
+            
+            const category = offerCategories[deviceType] || offerCategories.Desktop;
+            
+            // Generate offers suitable for this device type
+            const mockOffers = [];
+            
+            // Add a "special" offer for the user's location
+            mockOffers.push({
+                id: "special-offer",
+                title: `Special ${deviceType} Package for ${userInfo.geo.country_name}`,
+                description: `We've selected this exclusive content package specially for users in ${userInfo.geo.city || userInfo.geo.country_name}.`,
+                image_url: `https://source.unsplash.com/300x180/?${deviceType.toLowerCase()},premium`,
+                features: ["Region-specific content", "Local favorites", "Premium access"],
+                target_url: `https://optidownloader.com/1793424/lander1?special=true&country=${userInfo.geo.country.toLowerCase()}&device=${deviceType.toLowerCase()}`,
+                special: true
+            });
+            
+            // Add 3-5 standard offers
+            const offerCount = Math.floor(Math.random() * 3) + 3; // 3-5 offers
+            
+            for (let i = 0; i < offerCount; i++) {
+                const categoryIndex = i % category.length;
+                const offerCategory = category[categoryIndex];
+                
+                mockOffers.push({
+                    id: `offer-${i+1}`,
+                    title: `Premium ${deviceType} ${offerCategory.charAt(0).toUpperCase() + offerCategory.slice(1)}`,
+                    description: getRandomDescription(deviceType, offerCategory),
+                    image_url: `https://source.unsplash.com/300x180/?${deviceType.toLowerCase()},${offerCategory}`,
+                    features: getRandomFeatures(deviceType, offerCategory),
+                    target_url: `https://optidownloader.com/1793424/lander1?offer=${i+1}&category=${offerCategory}&device=${deviceType.toLowerCase()}&country=${userInfo.geo.country.toLowerCase()}`
+                });
+            }
+            
+            return mockOffers;
+        }
+        
+        // Get random descriptions for mock offers
+        function getRandomDescription(deviceType, category) {
+            const descriptions = {
+                "iOS": {
+                    "apps": [
+                        "Get exclusive access to premium iOS apps with all features unlocked.",
+                        "Download the latest iOS apps with premium features enabled."
+                    ],
+                    "games": [
+                        "Play the best iOS games with all levels and features unlocked.",
+                        "Enjoy premium iOS gaming with no restrictions or in-app purchases."
+                    ],
+                    "utilities": [
+                        "Enhance your iPhone or iPad with these essential premium utilities.",
+                        "Boost your productivity with these must-have iOS utilities."
+                    ],
+                    "entertainment": [
+                        "Stream, play, and enjoy premium content on your Apple device.",
+                        "Unlimited access to premium entertainment on your iOS device."
+                    ]
+                },
+                "Android": {
+                    "apps": [
+                        "Download exclusive Android apps with premium features enabled.",
+                        "Get the best Android apps with all restrictions removed."
+                    ],
+                    "games": [
+                        "Play premium Android games with all content unlocked.",
+                        "Enjoy the latest Android games with unlimited resources."
+                    ],
+                    "utilities": [
+                        "Essential utilities to enhance your Android experience.",
+                        "Boost your Android device's performance with these premium tools."
+                    ],
+                    "entertainment": [
+                        "Stream unlimited movies, music, and shows on your Android device.",
+                        "Access premium entertainment content on your Android device."
+                    ]
+                },
+                "Desktop": {
+                    "software": [
+                        "Professional software tools for your computer with all features enabled.",
+                        "Download premium software for your PC with extended licenses."
+                    ],
+                    "utilities": [
+                        "Essential utilities to optimize your computer's performance.",
+                        "Must-have tools to enhance your desktop experience."
+                    ],
+                    "entertainment": [
+                        "Unlimited access to premium entertainment on your computer.",
+                        "Stream and enjoy premium content with no restrictions."
+                    ],
+                    "tools": [
+                        "Professional-grade tools for your desktop computing needs.",
+                        "Advanced tools to boost your productivity on your computer."
+                    ]
+                }
+            };
+            
+            const deviceDescriptions = descriptions[deviceType] || descriptions.Desktop;
+            const categoryDescriptions = deviceDescriptions[category] || deviceDescriptions[Object.keys(deviceDescriptions)[0]];
+            
+            return categoryDescriptions[Math.floor(Math.random() * categoryDescriptions.length)];
+        }
+        
+        // Get random features for mock offers
+        function getRandomFeatures(deviceType, category) {
+            const allFeatures = {
+                "iOS": {
+                    "apps": ["No jailbreak required", "Regular updates", "Premium features unlocked", "Cloud sync", "No ads"],
+                    "games": ["All levels unlocked", "Unlimited resources", "No in-app purchases", "Offline play", "Premium content"],
+                    "utilities": ["Battery optimization", "Storage management", "Security features", "Cloud backup", "Premium support"],
+                    "entertainment": ["Ad-free experience", "HD quality content", "Offline download", "Premium catalogs", "Multiple devices"]
+                },
+                "Android": {
+                    "apps": ["No root required", "Premium versions", "Regular updates", "Cloud sync", "No ads"],
+                    "games": ["All levels unlocked", "Unlimited resources", "No in-app purchases", "Offline play", "Premium content"],
+                    "utilities": ["Battery optimization", "Storage management", "Security features", "Cloud backup", "Premium support"],
+                    "entertainment": ["Ad-free experience", "HD quality content", "Offline download", "Premium catalogs", "Multiple devices"]
+                },
+                "Desktop": {
+                    "software": ["Professional tools", "Lifetime updates", "Technical support", "Cloud sync", "Multiple licenses"],
+                    "utilities": ["System optimization", "Security features", "Automatic updates", "Premium support", "Multiple devices"],
+                    "entertainment": ["4K streaming", "Premium content", "No advertising", "Offline download", "Multiple devices"],
+                    "tools": ["Professional features", "Regular updates", "Cloud integration", "Premium support", "Multiple licenses"]
+                }
+            };
+            
+            const deviceFeatures = allFeatures[deviceType] || allFeatures.Desktop;
+            const categoryFeatures = deviceFeatures[category] || deviceFeatures[Object.keys(deviceFeatures)[0]];
+            
+            // Get 3 random features
+            const features = [];
+            const featuresCopy = [...categoryFeatures];
+            
+            for (let i = 0; i < 3; i++) {
+                if (featuresCopy.length === 0) break;
+                
+                const randomIndex = Math.floor(Math.random() * featuresCopy.length);
+                features.push(featuresCopy[randomIndex]);
+                featuresCopy.splice(randomIndex, 1);
+            }
+            
+            return features;
+        }
+        
+        // Display offers in the container (fallback for mock offers)
+        function displayOffers(offers, userInfo) {
+            const offersContainer = document.getElementById("offers");
+            offersContainer.innerHTML = ""; // Clear loading spinner
+            
+            // Create offer cards
+            offers.forEach((offer, index) => {
+                // Create offer card HTML
+                const offerCard = document.createElement("div");
+                offerCard.className = "offer-card";
+                if (offer.special) {
+                    offerCard.style.border = "2px solid var(--secondary-color)";
+                }
+                
+                // Create image element with error handling
+                const img = document.createElement("img");
+                img.className = "offer-image";
+                img.alt = offer.title;
+                
+                // Set image source with error handling
+                if (offer.image_url) {
+                    img.src = offer.image_url;
+                    img.onerror = function() {
+                        // If image fails to load, use a placeholder
+                        this.src = `https://via.placeholder.com/300x180?text=${encodeURIComponent(offer.title)}`;
+                    };
+                } else {
+                    img.src = `https://via.placeholder.com/300x180?text=${encodeURIComponent(offer.title)}`;
+                }
+                
+                // Create card content
+                const content = document.createElement("div");
+                content.className = "offer-content";
+                
+                // Title
+                const title = document.createElement("h3");
+                title.className = "offer-title";
+                title.textContent = offer.title;
+                
+                // Description
+                const description = document.createElement("p");
+                description.className = "offer-description";
+                description.textContent = offer.description;
+                
+                // Features
+                const featuresHtml = (offer.features || []).map(feature => `
+                    <div class="offer-highlight">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                            <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                        </svg>
+                        ${feature}
+                    </div>
+                `).join('');
+                
+                // CTA button
+                const button = document.createElement("a");
+                button.href = offer.target_url;
+                button.className = "cta-button";
+                button.target = "_blank";
+                button.textContent = "Get Access Now";
+                addPopunderToButton(button);
+                
+                // Assemble the card
+                content.innerHTML = `
+                    <h3 class="offer-title">${offer.title}</h3>
+                    <p class="offer-description">${offer.description}</p>
+                    ${featuresHtml}
+                `;
+                content.appendChild(button);
+                
+                offerCard.appendChild(img);
+                offerCard.appendChild(content);
+                offersContainer.appendChild(offerCard);
+            });
+            
+            // Apply language translation to buttons
+            translateButtonsIfNeeded(userInfo.language);
+        }
+        
+        // Set the page language based on user's locale
+        function setPageLanguage(lang) {
+            // This would be expanded with actual translations
+            const basicTranslations = {
+                'es': {
+                    'title': 'Descargas Premium | Ofertas Exclusivas',
+                    'header': 'Descargas Premium',
+                    'subtitle': 'Ofertas exclusivas personalizadas solo para ti',
+                    'countdown': 'Tiempo restante para reclamar tu oferta exclusiva!',
+                    'viewing': 'personas viendo esta página',
+                    'button': 'Acceder Ahora'
+                },
+                'fr': {
+                    'title': 'Téléchargements Premium | Offres Exclusives',
+                    'header': 'Téléchargements Premium',
+                    'subtitle': 'Offres exclusives personnalisées pour vous',
+                    'countdown': 'restant pour réclamer votre offre exclusive!',
+                    'viewing': 'personnes consultent cette page',
+                    'button': 'Accéder Maintenant'
+                }
+            };
+            
+            const langCode = lang.split('-')[0];
+            
+            // Apply translations if available
+            if (basicTranslations[langCode]) {
+                const t = basicTranslations[langCode];
+                document.title = t.title;
+                document.querySelector("header h1").textContent = t.header;
+                document.querySelector("header .subtitle").textContent = t.subtitle;
+                document.getElementById("countdown").parentNode.innerHTML = 
+                    `<strong>Offre Limitée:</strong> <span id="countdown">05:00</span> ${t.countdown}`;
+                
+                const visitorCount = document.getElementById("visitor-count");
+                visitorCount.textContent = `${visitorCount.textContent.split(' ')[0]} ${t.viewing}`;
+                
+                // Button translation is handled after offers are loaded
+            }
+        }
+        
+        // Translate buttons after offers are loaded
+        function translateButtonsIfNeeded(lang) {
+            const langCode = lang.split('-')[0];
+            
+            const buttonTranslations = {
+                'es': 'Acceder Ahora',
+                'fr': 'Accéder Maintenant'
+            };
+            
+            if (buttonTranslations[langCode]) {
+                document.querySelectorAll(".cta-button").forEach(button => {
+                    button.textContent = buttonTranslations[langCode];
+                });
+            }
+        }
+        
+        // Countdown timer
+        function startCountdown() {
+            let time = 5 * 60; // 5 minutes in seconds
+            const countdownElement = document.getElementById("countdown");
+            
+            const timer = setInterval(() => {
+                time--;
+                
+                const minutes = Math.floor(time / 60);
+                const seconds = time % 60;
+                
+                countdownElement.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+                
+                if (time <= 0) {
+                    clearInterval(timer);
+                    countdownElement.parentElement.innerHTML = "<strong>Last Chance!</strong> Claim your offer now!";
+                }
+            }, 1000);
+        }
+        
+        // Dynamic visitor count
+        function simulateVisitors() {
+            const visitorElement = document.getElementById("visitor-count");
+            let count = parseInt(visitorElement.textContent);
+            
+            setInterval(() => {
+                // Random fluctuation between -2 and +5
+                const change = Math.floor(Math.random() * 8) - 2;
+                count += change;               
+            if (count < 300) {
+                count = 300 + Math.floor(Math.random() * 20);
+            } else if (count > 500) {
+                count = 500 - Math.floor(Math.random() * 20);
+            }
+
+            visitorElement.textContent = `${count} people viewing this page`;
+            }, 5000);
+            }
+
+// Initialize all features
+function initializeAll() {
+    // Core functionality
+    detectUserInfo();
+    startCountdown();
+    simulateVisitors();
+    
+    // Enhanced features
+    showRecentActivity();
+    setupExitIntent();
+    
+    // Set up periodic updates
+    setInterval(() => {
+        updatePageTheme(currentMetadata);
+        updateLocationBanner(userInfo.geo.country_name, currentMetadata);
+    }, 300000); // Update every 5 minutes
+
+    // Add global click handler for popunders
+    document.addEventListener('click', () => popunderManager.handleClick());
+}
+
+// Start everything when document is ready
+$(document).ready(initializeAll);
+</script>
+</body>
+</html>
