@@ -1476,5 +1476,93 @@ $(document).ready(initializeAll);
             console.error('Error during initialization:', error);
         }
     </script>
+<script>
+// Add these variables at the top of your script
+let currentOfferIndex = 0;
+let totalOffers = 0;
+let currentOffers = [];
+let currentMetadata = null;
+let userInfo = null;
+
+// Update the displayCPAGripOffers function
+function displayCPAGripOffers(offers, info) {
+    userInfo = info;
+    currentOffers = offers;
+    totalOffers = offers.length;
+    currentOfferIndex = 0;
+    
+    // Clear loading spinner
+    const offersContainer = document.getElementById("offers");
+    offersContainer.innerHTML = "";
+    
+    // Display first offer
+    displaySingleOffer(currentOfferIndex);
+    updateNavigation();
+    
+    // Set up navigation
+    document.getElementById('prevOffer').onclick = showPreviousOffer;
+    document.getElementById('nextOffer').onclick = showNextOffer;
+}
+
+function displaySingleOffer(index) {
+    const offer = currentOffers[index];
+    const offersContainer = document.getElementById("offers");
+    const progressIndicator = document.getElementById("offerProgress");
+    
+    // Create offer card
+    const offerCard = document.createElement("div");
+    offerCard.className = "offer-card active";
+    
+    // Update progress indicator
+    progressIndicator.textContent = `Offer ${index + 1} of ${totalOffers}`;
+    
+    // Create offer content
+    const content = createOfferContent(offer);
+    offerCard.innerHTML = content;
+    
+    // Clear container and add new card
+    offersContainer.innerHTML = "";
+    offersContainer.appendChild(offerCard);
+}
+
+function createOfferContent(offer) {
+    const vanityDomain = "optidownloader.com";
+    const offerUrl = offer.offerlink ? offer.offerlink.replace('www.cpagrip.com', vanityDomain) : offer.target_url;
+    
+    return `
+        <img class="offer-image" src="${offer.image_url || `https://via.placeholder.com/600x300?text=${encodeURIComponent(offer.title)}`}" 
+             alt="${offer.title}" 
+             onerror="this.src='https://via.placeholder.com/600x300?text=${encodeURIComponent(offer.title)}'">
+        <div class="offer-content">
+            <h3 class="offer-title">${offer.title}</h3>
+            <p class="offer-description">${offer.description || 'Exclusive premium content customized for you.'}</p>
+            <div class="offer-features">
+                ${getFeaturesList(offer)}
+            </div>
+            <a href="${offerUrl}" class="cta-button" target="_blank" 
+               onclick="popunderManager.handleClick()">Get Access Now</a>
+        </div>
+    `;
+}
+
+function getFeaturesList(offer) {
+    const features = offer.features || [
+        "Premium Access",
+        "Instant Download",
+        "24/7 Support"
+    ];
+    
+    return features.map(feature => `
+        <div class="offer-highlight">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                <polyline points="22 4 12 14.01 9 11.01"></polyline>
+            </svg>
+            ${feature}
+        </div>
+    `).join('');
+}
+// ...rest of existing code...
+</script>
 </body>
 </html>
