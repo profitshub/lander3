@@ -6,7 +6,9 @@
     <title>Premium Downloads | Exclusive Offers</title>
     <link rel="stylesheet" href="styles.css">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
-    <script src="js/main.js" defer></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
     <div class="container">
@@ -47,6 +49,11 @@
             <div class="loading-spinner">
                 <div class="spinner"></div>
             </div>
+        </div>
+        <div class="offer-progress" id="offerProgress"></div>
+        <div class="offer-navigation">
+            <button class="nav-button" id="prevOffer" disabled>Previous</button>
+            <button class="nav-button" id="nextOffer">Next</button>
         </div>
     </div>
     
@@ -544,119 +551,105 @@ function addPopunderToButton(button) {
         const offersContainer = document.getElementById("offers");
         offersContainer.innerHTML = ""; // Clear loading spinner
         
-        // Analyze offers to extract metadata
-        const metadata = analyzeOffers(offers);
+        currentOffers = offers;
+        totalOffers = offers.length;
+        currentOfferIndex = 0;
         
-        // Update page theme based on offer metadata
-        updatePageTheme(metadata);
+        // Display first offer
+        displaySingleOffer(currentOfferIndex);
+        updateNavigation();
         
-        // Update location banner with more specific messaging
-        updateLocationBanner(userInfo.geo.country_name, metadata);
+        // Set up navigation
+        document.getElementById('prevOffer').onclick = showPreviousOffer;
+        document.getElementById('nextOffer').onclick = showNextOffer;
+    }
+
+    function displaySingleOffer(index) {
+        const offer = currentOffers[index];
+        const offersContainer = document.getElementById("offers");
+        const progressIndicator = document.getElementById("offerProgress");
         
-        // Customize your vanity domain if needed
-        const vanityDomain = "optidownloader.com";
+        // Clear container
+        offersContainer.innerHTML = "";
         
-        // Create offer cards with enhanced content
-        offers.forEach((offer, index) => {
-            // Replace the default domain with your vanity domain if needed
-            const offerUrl = offer.offerlink.replace('www.cpagrip.com', vanityDomain);
-            
-            // Create offer card HTML
-            const offerCard = document.createElement("div");
-            offerCard.className = "offer-card";
-            if (index === 0) {
-                offerCard.style.border = "2px solid var(--secondary-color)";
-            }
-            
-            // Create image element
-            const img = document.createElement("img");
-            img.className = "offer-image";
-            img.alt = offer.title;
-            
-            // Use the offer's image or a placeholder
-            if (offer.image_url) {
-                img.src = offer.image_url;
-            } else {
-                // Use a placeholder that matches the category if possible
-                img.src = `https://source.unsplash.com/300x180/?${metadata.primaryCategory},${metadata.keywords[0] || 'premium'}`;
-            }
-            
-            // Handle image loading errors
-            img.onerror = function() {
-                this.src = `https://source.unsplash.com/300x180/?${metadata.primaryCategory}`;
-            };
-            
-            // Get enhanced features for this offer
-            const features = enhanceFeatureHighlights(offer, metadata);
-            
-            // Create features HTML
-            const featuresHtml = features.map(feature => `
-                <div class="offer-highlight">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
-                        <polyline points="22 4 12 14.01 9 11.01"></polyline>
-                    </svg>
-                    ${feature}
-                </div>
-            `).join('');
-            
-            // Customize CTA button text based on category
-            const ctaTexts = {
-                'games': 'Play Now',
-                'gaming': 'Download Now',
-                'software': 'Get Software',
-                'utilities': 'Download Now',
-                'entertainment': 'Stream Now',
-                'security': 'Secure Now',
-                'vpn': 'Get Protected'
-            };
-            
-            const ctaText = ctaTexts[metadata.primaryCategory] || 'Get Access Now';
-            
-            // CTA button
-            const button = document.createElement("a");
-            button.href = offerUrl;
-            button.className = "cta-button";
-            button.target = "_blank";
-            button.textContent = ctaText;
-            addPopunderToButton(button);
-            
-            // Assemble the card
-            const content = document.createElement("div");
-            content.className = "offer-content";
-            
-            // Enhanced description based on metadata if the original is too short
-            let enhancedDescription = offer.description;
-            if (!enhancedDescription || enhancedDescription.length < 30) {
-                // Create a more compelling description
-                const descriptions = {
-                    'games': `Exclusive premium ${offer.title} with all features unlocked. Perfect for ${metadata.audience}.`,
-                    'gaming': `Experience ${offer.title} with premium features and unlimited access. Made for ${metadata.audience}.`,
-                    'software': `Professional-grade ${offer.title} with all features enabled. Ideal for ${metadata.audience}.`,
-                    'utilities': `Optimize your experience with ${offer.title}. The perfect utility for ${metadata.audience}.`,
-                    'entertainment': `Enjoy unlimited streaming with ${offer.title}. Premium entertainment for ${metadata.audience}.`,
-                    'security': `Protect your devices with ${offer.title}. Advanced security for ${metadata.audience}.`,
-                    'vpn': `Secure your privacy with ${offer.title}. Complete protection for ${metadata.audience}.`
-                };
-                
-                enhancedDescription = descriptions[metadata.primaryCategory] || 
-                    `Exclusive premium content customized for ${metadata.audience}.`;
-            }
-            
-            content.innerHTML = `
-                <h3 class="offer-title">${offer.title}</h3>
-                <p class="offer-description">${enhancedDescription}</p>
-                ${featuresHtml}
-            `;
-            content.appendChild(button);
-            
-            offerCard.appendChild(img);
-            offerCard.appendChild(content);
-            offersContainer.appendChild(offerCard);
-        });
+        // Create offer card
+        const offerCard = document.createElement("div");
+        offerCard.className = "offer-card active";
         
-        // Apply language translation to buttons
-        translateButtonsIfNeeded(userInfo.language);
+        // Update progress indicator
+        progressIndicator.textContent = `Offer ${index + 1} of ${totalOffers}`;
+        
+        // Create offer content
+        const img = document.createElement("img");
+        img.className = "offer-image";
+        img.alt = offer.title;
+        
+        if (offer.image_url) {
+            img.src = offer.image_url;
+        } else {
+            img.src = `https://via.placeholder.com/300x180?text=${encodeURIComponent(offer.title)}`;
+        }
+        
+        img.onerror = function() {
+            this.src = `https://via.placeholder.com/300x180?text=${encodeURIComponent(offer.title)}`;
+        };
+        
+        const content = document.createElement("div");
+        content.className = "offer-content";
+        
+        const features = enhanceFeatureHighlights(offer, { primaryCategory: 'software' });
+        
+        const featuresHtml = features.map(feature => `
+            <div class="offer-highlight">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                    <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                </svg>
+                ${feature}
+            </div>
+        `).join('');
+        
+        const button = document.createElement("a");
+        button.href = offer.target_url || offer.offerlink;
+        button.className = "cta-button";
+        button.target = "_blank";
+        button.textContent = "Get Access Now";
+        addPopunderToButton(button);
+        
+        content.innerHTML = `
+            <h3 class="offer-title">${offer.title}</h3>
+            <p class="offer-description">${offer.description || "Exclusive premium content customized for you."}</p>
+            ${featuresHtml}
+        `;
+        content.appendChild(button);
+        
+        offerCard.appendChild(img);
+        offerCard.appendChild(content);
+        offersContainer.appendChild(offerCard);
+    }
+
+    function showNextOffer() {
+        if (currentOfferIndex < totalOffers - 1) {
+            currentOfferIndex++;
+            displaySingleOffer(currentOfferIndex);
+            updateNavigation();
+        }
+    }
+
+    function showPreviousOffer() {
+        if (currentOfferIndex > 0) {
+            currentOfferIndex--;
+            displaySingleOffer(currentOfferIndex);
+            updateNavigation();
+        }
+    }
+
+    function updateNavigation() {
+        const prevButton = document.getElementById('prevOffer');
+        const nextButton = document.getElementById('nextOffer');
+        
+        prevButton.disabled = currentOfferIndex === 0;
+        nextButton.disabled = currentOfferIndex === totalOffers - 1;
     }
 
     /**
