@@ -4,279 +4,57 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Premium Downloads | Exclusive Offers</title>
+    <link rel="stylesheet" href="styles.css">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
-    <style>
-        :root {
-            --primary-color: #3498db;
-            --secondary-color: #2ecc71;
-            --background-color: #f5f8fa;
-            --text-color: #333;
-            --card-background: #fff;
-            --button-hover: #2980b9;
-        }
+    <script src="js/main.js" defer></script>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Premium Downloads</h1>
+            <p class="subtitle">Exclusive offers personalized just for you</p>
+        </header>
         
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
+        <div id="location-banner">
+            <p>Finding the best offers for your location...</p>
+        </div>
         
-        body {
-            background-color: var(--background-color);
-            color: var(--text-color);
-            line-height: 1.6;
-        }
+        <div class="limited-offer">
+            <p><strong>Limited Time:</strong> <span id="countdown">05:00</span> remaining to claim your exclusive offer!</p>
+            <span id="visitor-count">317 people viewing this page</span>
+        </div>
         
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 20px;
-        }
+        <div class="social-proof">
+            <div class="proof-item">
+                <span class="icon">⭐</span>
+                <span class="count">4.8/5</span>
+                <span class="label">User Rating</span>
+            </div>
+            <div class="proof-item">
+                <span class="icon">👥</span>
+                <span class="count">50K+</span>
+                <span class="label">Downloads</span>
+            </div>
+            <div class="proof-item">
+                <span class="icon">✓</span>
+                <span class="count">100%</span>
+                <span class="label">Safe & Secure</span>
+            </div>
+        </div>
         
-        header {
-            background-color: var(--primary-color);
-            color: white;
-            text-align: center;
-            padding: 30px 0;
-            border-radius: 8px;
-            margin-bottom: 30px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-        }
-        
-        h1 {
-            font-size: 2.5rem;
-            margin-bottom: 10px;
-        }
-        
-        .subtitle {
-            font-size: 1.2rem;
-            opacity: 0.9;
-        }
-        
-        .offers-container {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 25px;
-            margin-bottom: 40px;
-        }
-        
-        .offer-card {
-            background-color: var(--card-background);
-            border-radius: 8px;
-            overflow: hidden;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-            transition: transform 0.3s ease;
-        }
-        
-        .offer-card:hover {
-            transform: translateY(-5px);
-        }
-        
-        .offer-image {
-            width: 100%;
-            height: 180px;
-            object-fit: cover;
-            border-bottom: 1px solid #eee;
-            background-color: #f0f0f0;
-        }
-        
-        .offer-content {
-            padding: 20px;
-        }
-        
-        .offer-title {
-            font-size: 1.4rem;
-            margin-bottom: 10px;
-            color: var(--primary-color);
-        }
-        
-        .offer-description {
-            color: #666;
-            margin-bottom: 20px;
-        }
-        
-        .offer-highlight {
-            display: flex;
-            align-items: center;
-            margin-bottom: 15px;
-            font-weight: 500;
-        }
-        
-        .offer-highlight svg {
-            margin-right: 10px;
-            color: var(--secondary-color);
-        }
-        
-        .cta-button {
-            display: block;
-            width: 100%;
-            background-color: var(--primary-color);
-            color: white;
-            text-align: center;
-            padding: 12px;
-            border-radius: 6px;
-            text-decoration: none;
-            font-weight: 600;
-            font-size: 1rem;
-            transition: background-color 0.3s ease;
-        }
-        
-        .cta-button:hover {
-            background-color: var(--button-hover);
-        }
-        
-        .limited-offer {
-            background-color: #fff3cd;
-            border-left: 4px solid #ffc107;
-            padding: 15px;
-            margin-bottom: 30px;
-            border-radius: 4px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-        
-        .limited-offer p {
-            font-weight: 500;
-            margin-right: 20px;
-        }
-        
-        footer {
-            text-align: center;
-            padding: 30px 0;
-            color: #777;
-            font-size: 0.9rem;
-        }
-        
-        #location-banner {
-            background: linear-gradient(135deg, #6366f1, #8b5cf6);
-            color: white;
-            text-align: center;
-            padding: 12px;
-            border-radius: 8px;
-            margin-bottom: 25px;
-        }
-        
-        .loading-spinner {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 200px;
-        }
-        
-        .spinner {
-            border: 4px solid rgba(0, 0, 0, 0.1);
-            width: 36px;
-            height: 36px;
-            border-radius: 50%;
-            border-left-color: var(--primary-color);
-            animation: spin 1s linear infinite;
-        }
-        
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-        
-        @media (max-width: 768px) {
-            .offers-container {
-                grid-template-columns: 1fr;
-            }
-            
-            h1 {
-                font-size: 2rem;
-            }
-            
-            .limited-offer {
-                flex-direction: column;
-                text-align: center;
-            }
-            
-            .limited-offer p {
-                margin-right: 0;
-                margin-bottom: 10px;
-            }
-        }
+        <div class="offers-container" id="offers">
+            <!-- Loading spinner -->
+            <div class="loading-spinner">
+                <div class="spinner"></div>
+            </div>
+        </div>
+    </div>
+    
+    <footer>
+        <p>© 2025 Premium Downloads. All rights reserved.</p>
+    </footer>
 
-        .loading-animation {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(255, 255, 255, 0.9);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
-        }
-
-        .loading-pulse {
-            width: 80px;
-            height: 80px;
-            border-radius: 50%;
-            background: var(--primary-color);
-            animation: pulse 1.2s ease-in-out infinite;
-        }
-
-        @keyframes pulse {
-            0% { transform: scale(0.95); opacity: 0.5; }
-            50% { transform: scale(1); opacity: 1; }
-            100% { transform: scale(0.95); opacity: 0.5; }
-        }
-
-        .activity-toast {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            background: white;
-            padding: 15px 25px;
-            border-radius: 8px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-            animation: slideIn 0.3s ease-out;
-            z-index: 1000;
-        }
-
-        @keyframes slideIn {
-            from { transform: translateX(100%); opacity: 0; }
-            to { transform: translateX(0); opacity: 1; }
-        }
-
-        .exit-popup {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.8);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 2000;
-        }
-
-        .popup-content {
-            background: white;
-            padding: 30px;
-            border-radius: 12px;
-            text-align: center;
-            position: relative;
-            max-width: 400px;
-        }
-
-        .close-button {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            border: none;
-            background: none;
-            cursor: pointer;
-            font-size: 20px;
-        }
-    </style>
-
-<script>
+    <script>
 // Theme Configuration
 const THEMES = {
     'software': {
@@ -453,54 +231,7 @@ function addPopunderToButton(button) {
     });
 }
 </script>
-</head>
-<body>
-    <div class="container">
-        <header>
-            <h1>Premium Downloads</h1>
-            <p class="subtitle">Exclusive offers personalized just for you</p>
-        </header>
-        
-        <div id="location-banner">
-            <p>Finding the best offers for your location...</p>
-        </div>
-        
-        <div class="limited-offer">
-            <p><strong>Limited Time:</strong> <span id="countdown">05:00</span> remaining to claim your exclusive offer!</p>
-            <span id="visitor-count">317 people viewing this page</span>
-        </div>
-        
-        <div class="social-proof">
-            <div class="proof-item">
-                <span class="icon">⭐</span>
-                <span class="count">4.8/5</span>
-                <span class="label">User Rating</span>
-            </div>
-            <div class="proof-item">
-                <span class="icon">👥</span>
-                <span class="count">50K+</span>
-                <span class="label">Downloads</span>
-            </div>
-            <div class="proof-item">
-                <span class="icon">✓</span>
-                <span class="count">100%</span>
-                <span class="label">Safe & Secure</span>
-            </div>
-        </div>
-        
-        <div class="offers-container" id="offers">
-            <!-- Loading spinner -->
-            <div class="loading-spinner">
-                <div class="spinner"></div>
-            </div>
-        </div>
-    </div>
-    
-    <footer>
-        <p>© 2025 Premium Downloads. All rights reserved.</p>
-    </footer>
-
-    <script>
+<script>
 
         // Enhanced functions for analyzing and adapting to CPA offers
 
@@ -1741,5 +1472,20 @@ function initializeAll() {
 // Start everything when document is ready
 $(document).ready(initializeAll);
 </script>
+    <script>
+        // Add error handling for script initialization
+        try {
+            $(document).ready(() => {
+                // Check if required functions exist
+                if (typeof initializeAll === 'function') {
+                    initializeAll();
+                } else {
+                    console.error('Required function initializeAll is not defined');
+                }
+            });
+        } catch (error) {
+            console.error('Error during initialization:', error);
+        }
+    </script>
 </body>
 </html>
