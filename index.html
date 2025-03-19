@@ -579,36 +579,35 @@ function addPopunderToButton(button) {
         // Update progress indicator
         progressIndicator.textContent = `Offer ${index + 1} of ${totalOffers}`;
         
-        // Create offer content
-        const img = document.createElement("img");
-        img.className = "offer-image";
-        img.alt = offer.title;
-        
-        if (offer.image_url) {
-            img.src = offer.image_url;
-        } else {
-            img.src = `https://via.placeholder.com/300x180?text=${encodeURIComponent(offer.title)}`;
-        }
-        
-        img.onerror = function() {
-            this.src = `https://via.placeholder.com/300x180?text=${encodeURIComponent(offer.title)}`;
-        };
-        
+        // Create the offer content
+        const offerContent = createOfferContent(offer, index);
+        offerCard.appendChild(offerContent);
+        offersContainer.appendChild(offerCard);
+    }
+
+    function createOfferContent(offer, index) {
         const content = document.createElement("div");
         content.className = "offer-content";
         
-        const features = enhanceFeatureHighlights(offer, { primaryCategory: 'software' });
+        // Create image
+        const img = document.createElement("img");
+        img.className = "offer-image";
+        img.alt = offer.title;
+        img.src = offer.image_url || `https://via.placeholder.com/300x180?text=${encodeURIComponent(offer.title)}`;
+        img.onerror = () => {
+            img.src = `https://via.placeholder.com/300x180?text=${encodeURIComponent(offer.title)}`;
+        };
         
-        const featuresHtml = features.map(feature => `
-            <div class="offer-highlight">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
-                    <polyline points="22 4 12 14.01 9 11.01"></polyline>
-                </svg>
-                ${feature}
-            </div>
-        `).join('');
+        // Create title and description
+        const title = document.createElement("h3");
+        title.className = "offer-title";
+        title.textContent = offer.title;
         
+        const description = document.createElement("p");
+        description.className = "offer-description";
+        description.textContent = offer.description;
+        
+        // Create CTA button
         const button = document.createElement("a");
         button.href = offer.target_url || offer.offerlink;
         button.className = "cta-button";
@@ -616,16 +615,13 @@ function addPopunderToButton(button) {
         button.textContent = "Get Access Now";
         addPopunderToButton(button);
         
-        content.innerHTML = `
-            <h3 class="offer-title">${offer.title}</h3>
-            <p class="offer-description">${offer.description || "Exclusive premium content customized for you."}</p>
-            ${featuresHtml}
-        `;
+        // Assemble content
+        content.appendChild(img);
+        content.appendChild(title);
+        content.appendChild(description);
         content.appendChild(button);
         
-        offerCard.appendChild(img);
-        offerCard.appendChild(content);
-        offersContainer.appendChild(offerCard);
+        return content;
     }
 
     function showNextOffer() {
