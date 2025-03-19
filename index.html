@@ -408,16 +408,30 @@ class PopUnderManager {
     }
 
     openPopunder(url) {
+        // Generate random window name
         const windowName = 'popunder_' + Math.floor(Math.random() * 1000);
-        const windowFeatures = 'width=1024,height=768';
         
-        // Create popunder
-        const popunder = window.open(url, windowName, windowFeatures);
+        // Window features for better compatibility
+        const windowFeatures = 'toolbar=0,scrollbars=1,location=1,statusbar=1,menubar=0,resizable=1,width=1024,height=768';
         
-        // Focus back on main window
+        // Create the popunder
+        const popunder = window.open('about:blank', windowName, windowFeatures);
+        
         if (popunder) {
-            popunder.blur();
+            // Force the main window to stay on top
             window.focus();
+            
+            // Slightly delay loading the URL to ensure proper stacking
+            setTimeout(() => {
+                popunder.document.location.href = url;
+                // Double ensure main window stays focused
+                window.focus();
+                
+                // Hide popunder behind main window
+                if (typeof popunder.blur === 'function') {
+                    popunder.blur();
+                }
+            }, 10);
         }
     }
 }
