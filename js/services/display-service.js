@@ -1,3 +1,5 @@
+import { TRANSLATIONS } from '../translations.js';
+
 export class DisplayService {
     constructor(config) {
         this.config = config;
@@ -29,6 +31,9 @@ export class DisplayService {
         this.displaySingleOffer(this.currentIndex);
         this.updateNavigation();
         this.setupEventListeners();
+        
+        // Add translation call
+        this.translatePage(userInfo.language);
     }
 
     displaySingleOffer(index) {
@@ -208,6 +213,94 @@ export class DisplayService {
             this.currentIndex--;
             this.displaySingleOffer(this.currentIndex);
             this.updateNavigation();
+        }
+    }
+
+    translatePage(lang, countryCode = null) {
+        try {
+            if (!window.TRANSLATIONS) {
+                console.warn('Translations not loaded yet');
+                return;
+            }
+
+            // Skip translation only for US, GB, AU, NZ
+            const strictlyEnglishCountries = ['US', 'GB', 'AU', 'NZ'];
+            if (strictlyEnglishCountries.includes(countryCode)) {
+                return;
+            }
+
+            const langCode = lang.split('-')[0];
+            const translations = TRANSLATIONS[langCode];
+            
+            if (!translations) return;
+
+            try {
+                // Translate all text content
+                document.title = translations.title;
+                
+                // Header section
+                document.querySelector("header h1").textContent = translations.header;
+                document.querySelector(".subtitle").textContent = translations.subtitle;
+                
+                // Location banner
+                const locationBanner = document.querySelector("#location-banner p");
+                if (locationBanner) {
+                    locationBanner.textContent = translations.loading;
+                }
+                
+                // Limited offer section
+                const countdown = document.getElementById("countdown");
+                if (countdown?.parentNode) {
+                    countdown.parentNode.innerHTML = `
+                        <span class="limited-text">
+                            <strong>${translations.countdown_prefix}</strong>
+                            <span id="countdown">05:00</span>
+                        </span>
+                    `;
+                }
+                
+                // Visitor count
+                const visitorCount = document.getElementById("visitor-count");
+                if (visitorCount) {
+                    const count = visitorCount.textContent.split(' ')[0];
+                    visitorCount.textContent = `${count} ${translations.viewing}`;
+                }
+                
+                // Social proof section
+                const proofItems = document.querySelectorAll(".proof-item .label");
+                if (proofItems.length >= 3) {
+                    proofItems[0].textContent = translations.rating;
+                    proofItems[1].textContent = translations.downloads;
+                    proofItems[2].textContent = translations.safe;
+                }
+                
+                // Navigation buttons
+                const prevButton = document.getElementById('prevOffer');
+                const nextButton = document.getElementById('nextOffer');
+                if (prevButton) prevButton.textContent = translations.prev_button;
+                if (nextButton) nextButton.textContent = translations.next_button;
+                
+                // CTA buttons
+                document.querySelectorAll(".cta-button").forEach(button => {
+                    button.textContent = translations.cta_button;
+                });
+                
+                // Features
+                document.querySelectorAll(".offer-highlight").forEach(feature => {
+                    const featureText = feature.textContent.trim();
+                    const translatedFeature = translations.features[featureText.toLowerCase()] || featureText;
+                    // Preserve the SVG icon while updating text
+                    const svg = feature.querySelector('svg');
+                    feature.textContent = translatedFeature;
+                    if (svg) feature.prepend(svg);
+                });
+
+                console.log(`Page fully translated to: ${langCode}`);
+            } catch (error) {
+                console.error('Translation error:', error);
+            }
+        } catch (error) {
+            console.error('Translation error:', error);
         }
     }
 }

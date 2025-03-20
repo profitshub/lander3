@@ -427,6 +427,116 @@ h1 {
     }
 }
 
+/* Mobile Optimizations */
+@media (max-width: 768px) {
+    .container {
+        padding: 10px;
+    }
+    
+    .offers-container {
+        margin: 10px auto;
+        padding: 10px;
+        min-height: 300px;
+    }
+
+    .offer-card.active {
+        display: flex !important;
+        flex-direction: column;
+        gap: 15px;
+        opacity: 1;
+        margin-bottom: 0;
+    }
+
+    .offer-image-container {
+        width: 100%;
+        height: 180px;
+        margin: 0;
+        border-radius: 8px;
+    }
+
+    .offer-image {
+        width: 100%;
+        height: 180px;
+        object-fit: cover;
+        border-radius: 8px;
+    }
+
+    .offer-content {
+        padding: 0;
+    }
+
+    .offer-title {
+        font-size: 1.4rem;
+        margin: 0 0 8px 0;
+        line-height: 1.2;
+    }
+
+    .offer-description {
+        font-size: 0.95rem;
+        margin-bottom: 8px;
+    }
+
+    .offer-highlight {
+        padding: 8px;
+        margin: 6px 0;
+        font-size: 0.9rem;
+    }
+
+    .cta-button {
+        margin-top: 10px;
+        padding: 12px;
+        font-size: 1rem;
+    }
+
+    .nav-button {
+        padding: 10px 15px;
+        font-size: 0.9rem;
+        min-width: auto;
+        flex: 1;
+    }
+
+    /* Compact social proof for mobile */
+    .social-proof {
+        gap: 8px;
+        margin: 10px 0;
+    }
+
+    .proof-item {
+        padding: 12px 8px;
+    }
+
+    .proof-item .count {
+        font-size: 1.2rem;
+    }
+
+    .proof-item .label {
+        font-size: 0.8rem;
+    }
+
+    /* Compact header for mobile */
+    header {
+        padding: 12px 0;
+        margin-bottom: 10px;
+    }
+
+    .limited-offer {
+        padding: 12px;
+        margin: 10px 0;
+    }
+
+    #location-banner {
+        padding: 8px;
+        margin: 8px 0;
+        font-size: 0.9rem;
+    }
+
+    /* Progress indicator for mobile */
+    .offer-progress {
+        font-size: 0.9rem;
+        margin: 10px 0;
+    }
+}
+
 /* Desktop optimizations */
 @media (min-width: 1024px) {
     .container {

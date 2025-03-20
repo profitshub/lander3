@@ -46,6 +46,173 @@
         // Initialize storage when page loads
         window.addEventListener('load', () => storageSystem.init());
     </script>
+    <script>
+    // Inline translations to avoid CORS issues
+    const TRANSLATIONS = {
+        // ...copy all translations from translations.js here...
+    };
+</script>
+
+<!-- Remove or comment out this script -->
+<!-- <script type="module">
+    import { TRANSLATIONS } from './js/translations.js';
+    window.TRANSLATIONS = TRANSLATIONS;
+</script> -->
+
+<!-- Update the initialization script -->
+<script>
+    // ...existing code...
+
+    function detectLanguage() {
+        const browserLang = navigator.language || navigator.userLanguage;
+        const langCode = browserLang.split('-')[0];
+        
+        // Now TRANSLATIONS is globally available
+        if (TRANSLATIONS && TRANSLATIONS[langCode]) {
+            const translations = TRANSLATIONS[langCode];
+            document.title = translations.title;
+            document.querySelector("header h1").textContent = translations.header;
+            document.querySelector(".subtitle").textContent = translations.subtitle;
+            
+            document.querySelectorAll(".cta-button").forEach(button => {
+                button.textContent = translations.cta_button;
+            });
+        }
+    }
+
+    // Update fetchIPBasedLocation for CORS issue
+    function fetchIPBasedLocation() {
+        try {
+            // Use fetch with no-cors mode
+            fetch('https://ipapi.co/json/', {
+                method: 'GET',
+                mode: 'no-cors',
+                headers: {
+                    'Accept': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .catch(error => {
+                console.log("Using default location");
+                useDefaultLocation();
+            });
+        } catch (error) {
+            console.log("IP detection failed, using default location");
+            useDefaultLocation();
+        }
+    }
+
+    // ...rest of existing code...
+</script>
+<!-- In the head section, update scripts -->
+<script>
+    // Single location detection with fallback
+    const LocationDetector = {
+        async detect() {
+            try {
+                // Try browser geolocation first
+                if (navigator.geolocation) {
+                    const position = await new Promise((resolve, reject) => {
+                        navigator.geolocation.getCurrentPosition(resolve, reject, {
+                            timeout: 5000,
+                            maximumAge: 0
+                        });
+                    });
+                    
+                    if (position) {
+                        return this.getLocationFromCoords(position.coords);
+                    }
+                }
+            } catch (error) {
+                console.log("Geolocation error:", error.message);
+            }
+            
+            // Fallback to IP location
+            try {
+                const response = await fetch('https://api.ipgeolocation.io/ipgeo?apiKey=f44c4d56fb7f45d0872c26a2e51a7a2e');
+                if (!response.ok) throw new Error('IP detection failed');
+                const data = await response.json();
+                
+                return {
+                    country: data.country_name,
+                    country_code: data.country_code2,
+                    country_name: data.country_name,
+                    city: data.city,
+                    region: data.state_prov,
+                    detected: true
+                };
+            } catch (error) {
+                console.log("Using default location");
+                return this.getDefaultLocation();
+            }
+        },
+        
+        async getLocationFromCoords(coords) {
+            const { latitude, longitude } = coords;
+            const url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`;
+            
+            const response = await fetch(url);
+            const data = await response.json();
+            
+            return {
+                country: data.address.country,
+                country_code: data.address.country_code?.toUpperCase() || "Unknown",
+                country_name: data.address.country || "your area",
+                city: data.address.city || data.address.town || "",
+                region: data.address.state || "",
+                detected: true
+            };
+        },
+        
+        getDefaultLocation() {
+            return {
+                country: "United States",
+                country_code: "US",
+                country_name: "United States",
+                city: "New York",
+                region: "NY",
+                detected: false
+            };
+        }
+    };
+
+    // Update initialization
+    async function initializeAll() {
+        try {
+            // Start with default location
+            const defaultLocation = LocationDetector.getDefaultLocation();
+            updateLocationBanner(defaultLocation.country_name);
+            fetchOffers(defaultLocation);
+            
+            // Try to get better location in background
+            const location = await LocationDetector.detect();
+            if (location.detected) {
+                updateLocationBanner(location.country_name);
+                fetchOffers(location);
+                
+                // Apply translations if needed
+                if (TRANSLATIONS) {
+                    const lang = getLanguageFromCountry(location.country_code);
+                    translatePage(lang, location.country_code);
+                }
+            }
+            
+            // Initialize other features
+            startCountdown();
+            simulateVisitors();
+            showRecentActivity();
+            setupExitIntent();
+            
+        } catch (error) {
+            console.error('Initialization error:', error);
+        }
+    }
+
+    // Start everything when document is ready
+    $(document).ready(initializeAll);
+</script>
+
+<!-- Remove or comment out duplicate initialization code -->
 </head>
 <body>
     <div class="container">
@@ -1496,23 +1663,27 @@ function addPopunderToButton(button) {
 
 // Initialize all features
 function initializeAll() {
-    // Core functionality
-    detectUserInfo();
+    // Start with browser language
+    detectLanguage();
+    
+    // Then try to get location
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+            position => {
+                fetchGeoInfo(position.coords.latitude, position.coords.longitude);
+            },
+            error => {
+                console.log("Geolocation error:", error.message);
+                // Continue with browser language
+            }
+        );
+    }
+    
+    // Rest of initialization
     startCountdown();
     simulateVisitors();
-    
-    // Enhanced features
     showRecentActivity();
     setupExitIntent();
-    
-    // Set up periodic updates
-    setInterval(() => {
-        updatePageTheme(currentMetadata);
-        updateLocationBanner(userInfo.geo.country_name, currentMetadata);
-    }, 300000); // Update every 5 minutes
-
-    // Add global click handler for popunders
-    document.addEventListener('click', () => popunderManager.handleClick());
 }
 
 // Start everything when document is ready
@@ -1810,7 +1981,8 @@ function detectUserInfo() {
     const defaultUserInfo = {
         device: Utils.detectDevice(),
         os: Utils.detectOS(),
-        language: navigator.language || navigator.userLanguage
+        language: navigator.language || navigator.userLanguage,
+        geo: getDefaultLocation()
     };
     
     // First try to get geolocation
@@ -2308,6 +2480,507 @@ async function fetchOffers(geoInfo) {
 // Remove duplicate fetchOffers implementations
 // ...existing code...
 
+</script>
+<script>
+// ...existing code...
+
+async function detectUserLocation() {
+    try {
+        const response = await fetch('https://ipapi.co/json/');
+        const data = await response.json();
+        const location = {
+            country: data.country_name,
+            country_code: data.country_code,
+            city: data.city,
+            language: getLanguageFromCountry(data.country_code)
+        };
+        
+        // Apply translations based on country
+        applyTranslations(location);
+        return location;
+    } catch (error) {
+        console.error('Location detection failed:', error);
+        return getDefaultLocation();
+    }
+}
+
+function getLanguageFromCountry(countryCode) {
+    const countryToLanguage = {
+        'ES': 'es', 'MX': 'es', 'AR': 'es', 'CO': 'es', // Spanish
+        'FR': 'fr', 'BE': 'fr', // French
+        'DE': 'de', 'AT': 'de', 'CH': 'de', // German
+        'IT': 'it', 'CH': 'it', // Italian
+        'JP': 'ja', // Japanese
+        'KR': 'ko', // Korean
+        'CN': 'zh', 'TW': 'zh', 'HK': 'zh', // Chinese
+        'NL': 'nl', 'BE': 'nl', // Dutch
+        'SE': 'se', // Swedish
+    };
+    return countryToLanguage[countryCode] || 'en';
+}
+
+function applyTranslations(location) {
+    // Skip translation for English-speaking countries
+    const englishSpeakingCountries = ['US', 'GB', 'AU', 'CA', 'NZ', 'IE'];
+    if (englishSpeakingCountries.includes(location.country_code)) {
+        return;
+    }
+
+    const lang = getLanguageFromCountry(location.country_code);
+    if (!lang || lang === 'en') return;
+
+    const translations = TRANSLATIONS[lang];
+    if (!translations) return;
+
+    // Update all text content
+    document.title = translations.title;
+    document.querySelector('header h1').textContent = translations.header;
+    document.querySelector('.subtitle').textContent = translations.subtitle;
+    
+    // Update location banner
+    document.querySelector('#location-banner p').textContent = 
+        translations.loading.replace('{location}', location.country);
+    
+    // Update countdown section
+    const countdownSection = document.querySelector('.limited-text');
+    if (countdownSection) {
+        countdownSection.innerHTML = `
+            <strong>${translations.countdown_prefix}</strong>
+            <span id="countdown">05:00</span>
+            <span>${translations.countdown_suffix}</span>
+        `;
+    }
+    
+    // Update visitor count
+    const visitorCount = document.getElementById('visitor-count');
+    if (visitorCount) {
+        const count = visitorCount.textContent.split(' ')[0];
+        visitorCount.textContent = `${count} ${translations.viewing}`;
+    }
+    
+    // Update proof items
+    const proofLabels = document.querySelectorAll('.proof-item .label');
+    if (proofLabels.length >= 3) {
+        proofLabels[0].textContent = translations.rating;
+        proofLabels[1].textContent = translations.downloads;
+        proofLabels[2].textContent = translations.safe;
+    }
+    
+    // Update navigation buttons
+    document.getElementById('prevOffer').textContent = translations.prev_button;
+    document.getElementById('nextOffer').textContent = translations.next_button;
+    
+    // Update CTA buttons
+    document.querySelectorAll('.cta-button').forEach(button => {
+        button.textContent = translations.cta_button;
+    });
+
+    console.log(`Page translated to: ${lang} for country: ${location.country_code}`);
+}
+
+// Update initialization to include translation
+function initializeAll() {
+    detectUserLocation().then(location => {
+        // Core functionality with location
+        detectUserInfo();
+        startCountdown();
+        simulateVisitors();
+        showRecentActivity();
+        setupExitIntent();
+    }).catch(error => {
+        console.error('Location detection failed:', error);
+        // Fall back to default English
+        initializeWithDefaultLanguage();
+    });
+}
+
+// ...existing code...
+
+// Start everything when document is ready
+$(document).ready(initializeAll);
+</script>
+<script>
+// Add this near the top of your script section
+
+// Simple language detection fallback
+function detectLanguage() {
+    const browserLang = navigator.language || navigator.userLanguage;
+    const langCode = browserLang.split('-')[0];
+    
+    if (TRANSLATIONS[langCode]) {
+        const translations = TRANSLATIONS[langCode];
+        document.title = translations.title;
+        document.querySelector("header h1").textContent = translations.header;
+        document.querySelector(".subtitle").textContent = translations.subtitle;
+        
+        document.querySelectorAll(".cta-button").forEach(button => {
+            button.textContent = translations.cta_button;
+        });
+    }
+}
+
+// Update initialization
+function initializeAll() {
+    // Start with browser language
+    detectLanguage();
+    
+    // Then try to get location
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+            position => {
+                fetchGeoInfo(position.coords.latitude, position.coords.longitude);
+            },
+            error => {
+                console.log("Geolocation error:", error.message);
+                // Continue with browser language
+            }
+        );
+    }
+    
+    // Rest of initialization
+    startCountdown();
+    simulateVisitors();
+    showRecentActivity();
+    setupExitIntent();
+}
+</script>
+<script type="module">
+    // ...existing code...
+
+    function detectLanguage() {
+        const browserLang = navigator.language || navigator.userLanguage;
+        const langCode = browserLang.split('-')[0];
+        
+        if (window.TRANSLATIONS && window.TRANSLATIONS[langCode]) {
+            const translations = window.TRANSLATIONS[langCode];
+            document.title = translations.title;
+            document.querySelector("header h1").textContent = translations.header;
+            document.querySelector(".subtitle").textContent = translations.subtitle;
+            
+            document.querySelectorAll(".cta-button").forEach(button => {
+                button.textContent = translations.cta_button;
+            });
+        }
+    }
+
+    // Update initialization to use modules
+    async function initializeAll() {
+        try {
+            // First check if translations are loaded
+            if (!window.TRANSLATIONS) {
+                console.warn('Waiting for translations to load...');
+                await new Promise(resolve => setTimeout(resolve, 100));
+            }
+            
+            detectLanguage();
+            
+            // Rest of initialization
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    position => {
+                        fetchGeoInfo(position.coords.latitude, position.coords.longitude);
+                    },
+                    error => {
+                        console.log("Geolocation error:", error.message);
+                        useDefaultLocation();
+                    }
+                );
+            }
+            
+            startCountdown();
+            simulateVisitors();
+            showRecentActivity();
+            setupExitIntent();
+        } catch (error) {
+            console.error('Initialization error:', error);
+            useDefaultLocation();
+        }
+    }
+
+    // Wait for DOM and modules to load
+    window.addEventListener('load', initializeAll);
+</script>
+<script>
+    // Define translations globally
+    window.TRANSLATIONS = {
+        // ...existing translations code from translations.js...
+    };
+</script>
+
+<!-- Update the initialization script -->
+<script>
+    function initializeAll() {
+        try {
+            // Single location detection attempt
+            const detectLocation = async () => {
+                try {
+                    // Try IP geolocation with CORS handling
+                    const response = await fetch('https://ipapi.co/json/', {
+                        method: 'GET',
+                        headers: {
+                            'Accept': 'application/json'
+                        }
+                    });
+                    
+                    if (!response.ok) throw new Error('IP detection failed');
+                    
+                    const data = await response.json();
+                    const location = {
+                        country: data.country_name,
+                        country_code: data.country_code,
+                        country_name: data.country_name,
+                        city: data.city,
+                        region: data.region,
+                        detected: true
+                    };
+                    
+                    console.log("Location detected:", location);
+                    updateLocationBanner(location.country_name);
+                    
+                    // Apply translations based on country
+                    if (window.TRANSLATIONS) {
+                        const lang = getLanguageFromCountry(location.country_code);
+                        translatePage(lang, location.country_code);
+                    }
+                    
+                    return location;
+                } catch (error) {
+                    console.log("Using default location");
+                    return useDefaultLocation();
+                }
+            };
+
+            // Start with default location
+            const defaultLocation = useDefaultLocation();
+            
+            // Try to get better location in background
+            detectLocation().then(location => {
+                if (location.detected) {
+                    fetchOffers(location);
+                }
+            });
+            
+            // Initialize other features
+            startCountdown();
+            simulateVisitors();
+            showRecentActivity();
+            setupExitIntent();
+            
+        } catch (error) {
+            console.error('Initialization error:', error);
+            useDefaultLocation();
+        }
+    }
+
+    // Update geolocation error handling
+    function handleLocationError(error) {
+        console.log("Geolocation error:", error.message);
+        useDefaultLocation();
+    }
+
+    // Clean up translation function
+    function translatePage(lang, countryCode) {
+        const langCode = lang.split('-')[0];
+        const translations = window.TRANSLATIONS[langCode];
+        
+        if (!translations) return;
+
+        // Update text content with translations
+        document.title = translations.title;
+        document.querySelector("header h1").textContent = translations.header;
+        document.querySelector(".subtitle").textContent = translations.subtitle;
+        
+        // ...rest of translation code...
+    }
+
+    // Start everything when document is ready
+    $(document).ready(initializeAll);
+</script>
+<script>
+function fetchIPBasedLocation() {
+    fetch('https://ipapi.co/json/', {
+        method: 'GET',
+        headers: {
+            'Accept': 'application/json'
+        }
+    })
+    .then(response => {
+        if (!response.ok) throw new Error('IP detection failed');
+        return response.json();
+    })
+    .then(data => {
+        const location = {
+            country: data.country_name,
+            country_code: data.country_code,
+            country_name: data.country_name,
+            city: data.city,
+            region: data.region,
+            detected: true
+        };
+        console.log("Location detected via IP:", location);
+        updateLocationBanner(location.country_name);
+        fetchOffers(location);
+    })
+    .catch(error => {
+        console.log("IP location failed:", error.message);
+        useDefaultLocation();
+    });
+}
+</script>
+
+<!-- Remove any other ipgeolocation references -->
+<script>
+// Update detectLocation to remove ipgeolocation
+async function detectLocation() {
+    try {
+        // Try IP geolocation with CORS handling
+        const response = await fetch('https://ipapi.co/json/', {
+            method: 'GET',
+            headers: {
+                'Accept': 'application/json'
+            }
+        });
+        
+        if (!response.ok) throw new Error('IP detection failed');
+        
+        const data = await response.json();
+        const location = {
+            country: data.country_name,
+            country_code: data.country_code,
+            country_name: data.country_name,
+            city: data.city,
+            region: data.region,
+            detected: true
+        };
+        
+        console.log("Location detected:", location);
+        updateLocationBanner(location.country_name);
+        
+        return location;
+    } catch (error) {
+        console.log("Using default location");
+        return useDefaultLocation();
+    }
+}
+</script>
+<script>
+// ...existing code...
+
+// Update detectLocation function to handle mobile properly
+async function detectLocation() {
+    try {
+        // Use JSON proxy service to avoid CORS
+        const proxyUrl = 'https://api.allorigins.win/get?url=' + encodeURIComponent('https://ipapi.co/json/');
+        
+        const response = await fetch(proxyUrl, {
+            method: 'GET',
+            headers: {
+                'Accept': 'application/json',
+                'User-Agent': Utils.detectDevice() === 'Desktop' ? 
+                    'Mozilla/5.0 Desktop' : 'Mozilla/5.0 Mobile'
+            }
+        });
+        
+        if (!response.ok) throw new Error('IP detection failed');
+        
+        const { contents } = await response.json();
+        const data = JSON.parse(contents);
+        
+        const location = {
+            country: data.country_name,
+            country_code: data.country_code,
+            country_name: data.country_name,
+            city: data.city,
+            region: data.region,
+            detected: true
+        };
+        
+        console.log("Location detected:", location);
+        updateLocationBanner(location.country_name);
+        
+        return location;
+    } catch (error) {
+        console.log("Using default location");
+        return useDefaultLocation();
+    }
+}
+
+// Update fetchIPBasedLocation to use the same proxy
+function fetchIPBasedLocation() {
+    const proxyUrl = 'https://api.allorigins.win/get?url=' + encodeURIComponent('https://ipapi.co/json/');
+    
+    fetch(proxyUrl)
+        .then(response => response.json())
+        .then(data => {
+            const ipData = JSON.parse(data.contents);
+            const location = {
+                country: ipData.country_name,
+                country_code: ipData.country_code,
+                country_name: ipData.country_name,
+                city: ipData.city,
+                region: ipData.region,
+                detected: true
+            };
+            console.log("Location detected via IP:", location);
+            updateLocationBanner(location.country_name);
+            fetchOffers(location);
+        })
+        .catch(error => {
+            console.log("IP location failed:", error.message);
+            useDefaultLocation();
+        });
+}
+
+</script>
+<script>
+// Update initialization to follow correct order
+async function initializeAll() {
+    try {
+        // Start with default location to show something immediately
+        const defaultLocation = getDefaultLocation();
+        updateLocationBanner(defaultLocation.country_name);
+        
+        // Step 1: Request geolocation permission
+        if (navigator.geolocation) {
+            console.log('Requesting geolocation permission...');
+            navigator.geolocation.getCurrentPosition(
+                // Success - use coordinates
+                async position => {
+                    console.log('Geolocation granted, fetching location details');
+                    const location = await fetchGeoInfo(position.coords.latitude, position.coords.longitude);
+                    updateLocationBanner(location.country_name);
+                    fetchOffers(location);
+                },
+                // Error - try IP based
+                error => {
+                    console.log('Geolocation denied, trying IP detection');
+                    fetchIPBasedLocation();
+                },
+                {
+                    enableHighAccuracy: false,
+                    timeout: 5000,
+                    maximumAge: 0
+                }
+            );
+        } else {
+            // No geolocation support - try IP based
+            console.log('Geolocation not supported, trying IP detection');
+            fetchIPBasedLocation();
+        }
+        
+        // Initialize other features
+        startCountdown();
+        simulateVisitors();
+        showRecentActivity();
+        setupExitIntent();
+        
+    } catch (error) {
+        console.error('Initialization error:', error);
+        useDefaultLocation();
+    }
+}
+
+// ...existing code...
 </script>
 </body>
 </html>

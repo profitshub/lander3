@@ -8,7 +8,12 @@ const CONFIG = {
             limit: 6
         },
         geolocation: {
-            nominatimUrl: 'https://nominatim.openstreetmap.org/reverse'
+            nominatimUrl: 'https://nominatim.openstreetmap.org/reverse',
+            ipDetection: {
+                primary: 'https://ipapi.co/json/',
+                fallback: 'https://ip-api.com/json/',
+                // Add more fallback services if needed
+            }
         }
     },
     security: {

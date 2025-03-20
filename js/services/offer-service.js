@@ -15,37 +15,57 @@ export class OfferService {
 
     async fetchOffers(geoInfo) {
         try {
-            // Use secured configuration
+            // Add location parameters to the request
             const params = new URLSearchParams({
                 user_id: this.config.userId,
                 pubkey: this.config.pubkey,
                 tracking_id: this.generateSecureTrackingId(),
-                limit: 6
+                limit: 6,
+                // Add location parameters
+                country: geoInfo.country_code || 'US',
+                city: geoInfo.city || '',
+                region: geoInfo.region || '',
+                // Add language targeting
+                language: navigator.language || 'en-US'
             });
 
-            // Validate domain
+            // Log location info for debugging
+            console.log('Fetching offers for location:', {
+                country: geoInfo.country_code,
+                city: geoInfo.city,
+                region: geoInfo.region
+            });
+
             const url = `${this.config.baseUrl}?${params.toString()}`;
-            if (!this.isAllowedDomain(url)) {
-                throw new Error('Invalid domain');
-            }
-
-            // Show loading state first
-            document.getElementById("offers").innerHTML = `
-                <div class="loading-spinner">
-                    <div class="spinner"></div>
-                </div>
-            `;
-
             const response = await fetch(url);
             const data = await response.json();
 
             if (!data.offers || data.offers.length === 0) {
+                console.log('No offers found for location, using mock offers');
                 return this.generateMockOffers(geoInfo);
             }
 
-            return this.processOffers(data.offers, geoInfo);
+            // Filter offers by location relevance
+            const locationFiltered = data.offers.filter(offer => {
+                // Check if offer has location targeting
+                if (offer.allowed_countries) {
+                    return offer.allowed_countries.includes(geoInfo.country_code);
+                }
+                return true; // Include if no specific targeting
+            });
+
+            // Sort offers by location relevance
+            const sortedOffers = locationFiltered.sort((a, b) => {
+                // Prioritize offers specifically targeted to user's country
+                const aTargeted = a.allowed_countries?.includes(geoInfo.country_code) ? 1 : 0;
+                const bTargeted = b.allowed_countries?.includes(geoInfo.country_code) ? 1 : 0;
+                return bTargeted - aTargeted;
+            });
+
+            console.log(`Found ${sortedOffers.length} relevant offers for location`);
+            return this.processOffers(sortedOffers, geoInfo);
         } catch (error) {
-            console.error('Secure offer fetch error:', error);
+            console.error('Error fetching location-based offers:', error);
             return this.generateMockOffers(geoInfo);
         }
     }
@@ -53,7 +73,9 @@ export class OfferService {
     processOffers(offers, geoInfo) {
         return offers.map(offer => ({
             ...offer,
-            vanityUrl: this.createVanityUrl(offer)
+            vanityUrl: this.createVanityUrl(offer),
+            // Add location relevance flag
+            locationRelevant: offer.allowed_countries?.includes(geoInfo.country_code) || false
         }));
     }
 
