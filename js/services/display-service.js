@@ -6,7 +6,17 @@ export class DisplayService {
         this.imageService = new ImageService();
     }
 
-    displayOffers(offers, userInfo) {
+    displayOffers(offers, userInfo = {}) {
+        // Ensure userInfo has default values
+        this.userInfo = {
+            device: userInfo.device || 'Desktop',
+            language: userInfo.language || 'en-US',
+            geo: userInfo.geo || {
+                country: 'United States',
+                country_code: 'US'
+            }
+        };
+
         this.currentOffers = offers;
         this.currentIndex = 0;
         
@@ -25,7 +35,30 @@ export class DisplayService {
         const offer = this.currentOffers[index];
         const container = document.getElementById("offers");
         
-        const offerCard = this.createOfferCard(offer);
+        const offerCard = document.createElement("div");
+        offerCard.className = "offer-card";
+        
+        // Use direct image URL with reliable fallback
+        const imageUrl = offer.image_url || this.generatePlaceholder(offer.title);
+        
+        offerCard.innerHTML = `
+            <div class="offer-image-container">
+                <img class="offer-image" 
+                     src="${imageUrl}" 
+                     alt="${offer.title}"
+                     onerror="this.onerror=null; this.src='${this.generatePlaceholder(offer.title)}'">
+            </div>
+            <div class="offer-content">
+                <h3 class="offer-title">${offer.title}</h3>
+                <p class="offer-description">${offer.description || 'Click to access premium content instantly'}</p>
+                <div class="offer-features">
+                    ${this.getFeaturesList(offer)}
+                </div>
+                <a href="${this.getOfferUrl(offer)}" class="cta-button" target="_blank">
+                    ${this.getCtaText(offer)}
+                </a>
+            </div>
+        `;
         
         container.innerHTML = '';
         container.appendChild(offerCard);
@@ -35,21 +68,26 @@ export class DisplayService {
         offerCard.classList.add('active');
         
         this.updateProgress(index);
+        
+        // Add popunder to button
+        const button = offerCard.querySelector('.cta-button');
+        if (typeof addPopunderToButton === 'function') {
+            addPopunderToButton(button);
+        }
     }
 
     createOfferCard(offer) {
         const card = document.createElement('div');
         card.className = 'offer-card';
         
-        // Simplified image handling - use direct URL with fallback
-        const imageUrl = offer.image_url || 'https://via.placeholder.com/600x300/3498db/ffffff?text=Premium+Offer';
+        // Use built-in placeholder
+        const imageUrl = offer.image_url || this.generatePlaceholder(offer.title);
         
         card.innerHTML = `
             <div class="offer-image-container">
                 <img class="offer-image" 
                      src="${imageUrl}" 
-                     alt="${offer.title}"
-                     onerror="this.onerror=null; this.src='https://via.placeholder.com/600x300/3498db/ffffff?text=${encodeURIComponent(offer.title)}'">
+                     alt="${offer.title}">
             </div>
             <div class="offer-content">
                 <h3 class="offer-title">${offer.title}</h3>

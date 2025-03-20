@@ -38,22 +38,36 @@ const displayService = new DisplayService(CONFIG);
 // Main initialization function
 async function initializeApp() {
     try {
-        const userInfo = {
-            device: Utils.detectDevice(),
-            os: Utils.detectOS(),
-            language: navigator.language || navigator.userLanguage
+        // Get initial location
+        const defaultLocation = {
+            country: "United States",
+            country_code: "US",
+            country_name: "United States",
+            city: "New York",
+            region: "NY"
         };
 
-        // Start with default location while fetching real location
-        const location = await locationService.detectLocation();
-        const offers = await offerService.fetchOffers(location);
-        displayService.displayOffers(offers, userInfo);
-        
+        // Fetch and display offers
+        const offers = await offerService.fetchOffers(defaultLocation);
+        if (offers && offers.length > 0) {
+            displayService.displayOffers(offers, {
+                device: 'Desktop',
+                language: navigator.language
+            });
+        } else {
+            displayService.showError();
+        }
+
+        // Start other features
+        startCountdown();
+        simulateVisitors();
+        showRecentActivity();
+
     } catch (error) {
         console.error('Initialization error:', error);
         displayService.showError();
     }
 }
 
-// Start app when document is ready
-$(document).ready(initializeApp);
+// Initialize when document is ready
+document.addEventListener('DOMContentLoaded', initializeApp);

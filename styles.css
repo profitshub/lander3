@@ -422,6 +422,72 @@ h1 {
     }
 }
 
+/* Desktop optimizations */
+@media (min-width: 1024px) {
+    .container {
+        max-width: 1200px;
+        padding: 10px 20px;
+    }
+    
+    .offers-container {
+        max-width: 800px;
+        margin: 15px auto;
+        min-height: 400px; /* Ensure consistent height */
+    }
+
+    .offer-card.active {
+        display: flex !important; /* Force flex display */
+        flex-direction: row;
+        align-items: flex-start; /* Align items to top */
+        gap: 20px;
+        opacity: 1;
+    }
+
+    .offer-image-container {
+        flex: 0 0 300px;
+        height: 200px;
+        margin-bottom: 0;
+        margin-top: 0; /* Remove any top margin */
+    }
+
+    .offer-content {
+        flex: 1;
+        padding: 0 15px;
+        margin-top: 0; /* Remove any top margin */
+    }
+
+    .offer-title {
+        font-size: 1.8rem;
+        margin-top: 0; /* Remove top margin to align with image */
+        margin-bottom: 10px;
+        line-height: 1.2; /* Tighter line height for better alignment */
+    }
+
+    .social-proof {
+        max-width: 800px;
+        margin: 10px auto;
+    }
+}
+
+/* Compact header for desktop */
+@media (min-width: 1024px) {
+    header {
+        padding: 15px 0;
+        margin-bottom: 15px;
+    }
+
+    .limited-offer {
+        max-width: 800px;
+        margin: 15px auto;
+        padding: 10px 20px;
+    }
+
+    #location-banner {
+        max-width: 800px;
+        margin: 10px auto;
+    }
+}
+
 /* Loading Animation */
 .spinner {
     border: 4px solid rgba(0, 0, 0, 0.1);
